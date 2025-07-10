@@ -1886,8 +1886,11 @@ class FormDenunciaState extends State<FormDenuncia> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => guardadoExitoso(denuncia: denuncia),
+                        builder: (context) {
+                          final denuncia =
+                              _crearDenuncia(); // Define 'denuncia' here
+                          return guardadoExitoso(denuncia: denuncia);
+                        },
                       ),
                     );
                   } catch (e) {

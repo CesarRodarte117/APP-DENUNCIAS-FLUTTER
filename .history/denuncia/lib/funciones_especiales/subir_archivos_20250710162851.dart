@@ -167,6 +167,9 @@ class FileUploadSectionState extends State<FileUploadSection> {
         }
       });
 
+      // 3. Forzar sincronización con la base de datos
+      await db.execute('COMMIT');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Evidencias guardadas localmente')),

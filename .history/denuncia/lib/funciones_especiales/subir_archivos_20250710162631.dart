@@ -158,14 +158,17 @@ class FileUploadSectionState extends State<FileUploadSection> {
         );
 
         evidencias.add(evidencia);
-      }
 
-      final db = await DatabaseHelper().database;
-      await db.transaction((txn) async {
-        for (int i = 0; i < _archivosSeleccionados.length; i++) {
-          await txn.insert('evidencias', evidencias[i].toMap());
-        }
-      });
+        final db = await DatabaseHelper().database;
+        await db.transaction((txn) async {
+          for (int i = 0; i < _archivosSeleccionados.length; i++) {
+            await txn.insert('evidencias', evidencias[i].toMap());
+          }
+        });
+
+        // 3. Forzar sincronización con la base de datos
+        await db.execute('COMMIT');
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -95,7 +95,6 @@ class guardadoExitoso extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-
             if (_esAnonimo())
               _buildCard(_buildDataRow("Usuario", 'Anónimo'))
             else
@@ -184,11 +183,7 @@ class guardadoExitoso extends StatelessWidget {
                 future: DatabaseHelper().getEvidenciasPorDenuncia(
                   denuncia.id ?? 0,
                 ),
-
                 builder: (context, snapshot) {
-                  print('snapshot.data: ${snapshot.data}');
-                  print('denuncia.id: ${denuncia.id}');
-
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -1875,7 +1870,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                     await DatabaseHelper().database;
                     // Esperar un breve momento para asegurar que todo se guardó
                     await Future.delayed(const Duration(milliseconds: 500));
-                    final denuncia = _crearDenuncia()..id = idDenuncia;
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -1886,8 +1880,11 @@ class FormDenunciaState extends State<FormDenuncia> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => guardadoExitoso(denuncia: denuncia),
+                        builder: (context) {
+                          final denuncia =
+                              _crearDenuncia(); // Define 'denuncia' here
+                          return guardadoExitoso(denuncia: denuncia);
+                        },
                       ),
                     );
                   } catch (e) {

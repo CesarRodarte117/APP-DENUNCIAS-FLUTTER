@@ -95,7 +95,6 @@ class guardadoExitoso extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-
             if (_esAnonimo())
               _buildCard(_buildDataRow("Usuario", 'Anónimo'))
             else
@@ -184,11 +183,7 @@ class guardadoExitoso extends StatelessWidget {
                 future: DatabaseHelper().getEvidenciasPorDenuncia(
                   denuncia.id ?? 0,
                 ),
-
                 builder: (context, snapshot) {
-                  print('snapshot.data: ${snapshot.data}');
-                  print('denuncia.id: ${denuncia.id}');
-
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -1866,28 +1861,40 @@ class FormDenunciaState extends State<FormDenuncia> {
                       return;
                     }
 
+                    // //guardar evidencia en la base de datos
+                    // if (_urlsEvidencias.isNotEmpty) {
+                    //   for (var url in _urlsEvidencias) {
+                    //     await _guardarEvidencia(idDenuncia, url);
+                    //   }
+                    // }
+
                     // guardar id de denuncia en el uploader
                     await _uploaderKey.currentState!.guardarEvidenciasLocales(
                       idDenuncia,
                       _urlsEvidencias,
                     );
 
-                    await DatabaseHelper().database;
+                    print(
+                      'Evidencias guardadas exitosamente id: $idDenuncia , urls: $_urlsEvidencias',
+                    );
+
                     // Esperar un breve momento para asegurar que todo se guardó
-                    await Future.delayed(const Duration(milliseconds: 500));
-                    final denuncia = _crearDenuncia()..id = idDenuncia;
+                    await Future.delayed(const Duration(milliseconds: 1000));
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Guardando denuncia...'),
-                        duration: Duration(seconds: 2),
+                        duration: Duration(seconds: 1),
                       ),
                     );
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => guardadoExitoso(denuncia: denuncia),
+                        builder: (context) {
+                          final denuncia =
+                              _crearDenuncia(); // Define 'denuncia' here
+                          return guardadoExitoso(denuncia: denuncia);
+                        },
                       ),
                     );
                   } catch (e) {

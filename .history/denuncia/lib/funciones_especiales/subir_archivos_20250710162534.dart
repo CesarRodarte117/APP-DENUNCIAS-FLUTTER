@@ -163,6 +163,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
       final db = await DatabaseHelper().database;
       await db.transaction((txn) async {
         for (int i = 0; i < _archivosSeleccionados.length; i++) {
+          await _archivosSeleccionados[i].copy(evidencias[i].pathLocal!);
           await txn.insert('evidencias', evidencias[i].toMap());
         }
       });
@@ -180,7 +181,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
           ),
         );
       }
-      print('🔴 Error al guardar evidencias: ${e.toString()}');
       rethrow;
     }
   }

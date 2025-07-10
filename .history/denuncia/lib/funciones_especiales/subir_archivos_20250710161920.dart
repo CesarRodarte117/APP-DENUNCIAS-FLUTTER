@@ -123,6 +123,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
     int denunciaId, [
     List<String> urls = const [],
   ]) async {
+    final db = await DatabaseHelper().database;
     try {
       print(
         '🟡 Intentando guardar ${_archivosSeleccionados.length} archivos con ID: $denunciaId',
@@ -140,14 +141,8 @@ class FileUploadSectionState extends State<FileUploadSection> {
         // 1. Copiar el archivo (esperar explícitamente)
         await archivo.copy(localPath);
 
-        // 2. Forzar sincronización del sistema de archivos (MÉTODO MEJORADO)
-        final file = File(localPath);
-        await file.exists(); // Verificación básica
-        await file.readAsBytes().then(
-          (bytes) => file.writeAsBytes(bytes),
-        ); // Forzar refresco
-        await file.exists(); // Doble verificación
-        print('🟢 Archivo guardado localmente: ${file.path}');
+        // 2. Forzar sincronización del sistema de archivos
+        await File(localPath).exists(); // Verificación adicional
 
         final evidencia = Evidencia(
           denunciaId: denunciaId,
@@ -158,11 +153,14 @@ class FileUploadSectionState extends State<FileUploadSection> {
         );
 
         evidencias.add(evidencia);
+        // 5. Forzar sincronización con la base de datos
+        await db.execute('COMMIT');
       }
 
       final db = await DatabaseHelper().database;
       await db.transaction((txn) async {
         for (int i = 0; i < _archivosSeleccionados.length; i++) {
+          await _archivosSeleccionados[i].copy(evidencias[i].pathLocal!);
           await txn.insert('evidencias', evidencias[i].toMap());
         }
       });
@@ -180,8 +178,10 @@ class FileUploadSectionState extends State<FileUploadSection> {
           ),
         );
       }
-      print('🔴 Error al guardar evidencias: ${e.toString()}');
       rethrow;
+    } finally {
+      // Limpiar selección después de guardar
+      _archivosSeleccionados.clear();
     }
   }
 
