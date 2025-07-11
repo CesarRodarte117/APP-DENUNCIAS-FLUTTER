@@ -274,7 +274,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen) && evidencia.pathLocal != null)
+          if ((esImagen || esVideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -304,19 +304,59 @@ class guardadoExitoso extends StatelessWidget {
                 ),
               ),
             )
-          else if ((esArchivo || esVideo) && evidencia.pathLocal != null)
+          else if ((esArchivo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: Image.file(
+                  File(evidencia.pathLocal!),
+                  width: double.infinity,
                   height: 180,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    _getIconForFileType(evidencia.nombreArchivo),
-                    size: 50,
-                    color: primaryColor,
-                  ),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 180,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              _getIconForFileType(evidencia.nombreArchivo),
+                              size: 50,
+                              color: primaryColor,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (evidencia.pathLocal != null)
+                                  InkWell(
+                                    onTap:
+                                        () => _openLocalFile(
+                                          context,
+                                          evidencia.pathLocal!,
+                                        ),
+                                    child: Text(
+                                      evidencia.nombreArchivo,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             )

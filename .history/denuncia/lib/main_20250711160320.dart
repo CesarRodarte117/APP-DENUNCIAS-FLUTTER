@@ -274,7 +274,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen) && evidencia.pathLocal != null)
+          if ((esImagen || esVideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -304,19 +304,33 @@ class guardadoExitoso extends StatelessWidget {
                 ),
               ),
             )
-          else if ((esArchivo || esVideo) && evidencia.pathLocal != null)
+          else if ((esArchivo) && evidencia.pathLocal != null)
             InkWell(
-              onTap: () => _openLocalFile(context, evidencia.pathLocal!),
+              onTap: () => _openLocalArchivo(context, evidencia.pathLocal!),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: Image.file(
+                  File(evidencia.pathLocal!),
+                  width: double.infinity,
                   height: 180,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    _getIconForFileType(evidencia.nombreArchivo),
-                    size: 50,
-                    color: primaryColor,
-                  ),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.broken_image, size: 50),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No se pudo cargar la imagen',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             )
@@ -373,6 +387,9 @@ class guardadoExitoso extends StatelessWidget {
   Future<void> _openLocalArchivo(BuildContext context, String path) async {
     try {
       final file = File(path);
+
+      await OpenFile.open(path);
+
       if (await file.exists()) {
         final result = await OpenFile.open(path);
         if (result.type != ResultType.done) {

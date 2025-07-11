@@ -304,19 +304,63 @@ class guardadoExitoso extends StatelessWidget {
                 ),
               ),
             )
-          else if ((esArchivo || esVideo) && evidencia.pathLocal != null)
+          else if ((esVideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Container(
+                child: Image.file(
+                  File(evidencia.pathLocal!),
+                  width: double.infinity,
                   height: 180,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    _getIconForFileType(evidencia.nombreArchivo),
-                    size: 50,
-                    color: primaryColor,
-                  ),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.broken_image, size: 50),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No se pudo cargar la imagen',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
+          else if ((esArchivo) && evidencia.pathLocal != null)
+            InkWell(
+              onTap: () => _openLocalFile(context, evidencia.pathLocal!),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(evidencia.pathLocal!),
+                  width: double.infinity,
+                  height: 180,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.broken_image, size: 50),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No se pudo cargar la imagen',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             )
