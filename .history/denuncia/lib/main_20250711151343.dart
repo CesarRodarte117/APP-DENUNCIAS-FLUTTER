@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as Path;
 import 'dart:io';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import 'package:denuncia/models/db.dart';
 import 'package:denuncia/models/denuncia.dart';
@@ -265,6 +267,54 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
 
+    Future<Widget> _buildThumbnail(Evidencia evidencia) async {
+      final path = evidencia.pathLocal!;
+      final file = File(path);
+
+      if (esImagen) {
+        return Image.file(
+          file,
+          width: double.infinity,
+          height: 180,
+          fit: BoxFit.cover,
+        );
+      }
+
+      if (esVideo) {
+        final thumbnail = await VideoThumbnail.thumbnailData(
+          video: path,
+          imageFormat: ImageFormat.PNG,
+          maxWidth: 600,
+          quality: 75,
+        );
+
+        if (thumbnail != null) {
+          return Image.memory(
+            thumbnail,
+            width: double.infinity,
+            height: 180,
+            fit: BoxFit.cover,
+          );
+        }
+      }
+
+      if (esArchivo && path.toLowerCase().endsWith('.pdf')) {
+        final doc = await PdfDocument.openFile(path);
+        final page = await doc.getPage(1);
+        final image = await page.render(width: 600, height: 800);
+        await doc.dispose();
+
+        return Image.memory(
+          image.pixels,
+          width: double.infinity,
+          height: 180,
+          fit: BoxFit.cover,
+        );
+      }
+
+      return const Icon(Icons.insert_drive_file, size: 50);
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -279,27 +329,26 @@ class guardadoExitoso extends StatelessWidget {
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(evidencia.pathLocal!),
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 180,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.broken_image, size: 50),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No se pudo cargar la imagen',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    );
+                child: FutureBuilder<Widget>(
+                  future: _buildThumbnail(evidencia),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        height: 180,
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError || !snapshot.hasData) {
+                      return Container(
+                        height: 180,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.broken_image, size: 50),
+                      );
+                    }
+
+                    return snapshot.data!;
                   },
                 ),
               ),
@@ -362,9 +411,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }

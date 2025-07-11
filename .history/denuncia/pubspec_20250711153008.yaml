@@ -45,7 +45,7 @@ dependencies:
   flutter_image_compress: ^2.4.0  # Para compresión de imágenes
   # open_filex: ^4.3.3  # Versión estable y ampliamente compatible
   video_player: ^2.7.0
-  pdfx: ^2.9.2
+
   # ffmpeg_kit_flutter: ^6.0.3 # En lugar de flutter_ffmpeg deSCONTINUADO
   image: ^4.5.4 # Para compresión de imágenes
 

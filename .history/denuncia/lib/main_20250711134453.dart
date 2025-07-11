@@ -251,19 +251,17 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
-    final esVideo =
-        evidencia.tipo.toLowerCase() == 'video' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
+    final esvideo =
+        evidencia.tipo.toLowerCase() == 'imagen' ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.jpg') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
     final esArchivo =
-        evidencia.tipo.toLowerCase() == 'archivo' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pdf') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.doc') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
+        evidencia.tipo.toLowerCase() == 'imagen' ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.jpg') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -274,7 +272,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if (esImagen && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -362,9 +360,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }

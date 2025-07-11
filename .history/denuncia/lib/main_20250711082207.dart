@@ -186,15 +186,15 @@ class guardadoExitoso extends StatelessWidget {
                 ),
 
                 builder: (context, snapshot) {
+                  print('snapshot.data: ${snapshot.data}');
+                  print('denuncia.id: ${denuncia.id}');
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
-                    return Text(
-                      "No se han adjuntado evidencias.",
-                      style: TextStyle(color: Colors.red),
-                    );
+                    return Text('No se han adjuntado evidencias.');
                   }
 
                   final evidencias = snapshot.data ?? [];
@@ -251,20 +251,6 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
-    final esVideo =
-        evidencia.tipo.toLowerCase() == 'video' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
-
-    final esArchivo =
-        evidencia.tipo.toLowerCase() == 'archivo' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pdf') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.doc') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -274,7 +260,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if (esImagen && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -362,9 +348,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }
@@ -767,6 +751,7 @@ class FormDenunciaState extends State<FormDenuncia> {
   String civilStatusValue = 'Select';
   String dependenciaStatusValue = '117';
   String echodropdownValue = 'Select';
+  String evidenciaStatusValue = 'Select';
   String fechaSeleccionada = '';
   bool anonimoValue = false;
   bool visiblefecha = false;
@@ -850,6 +835,23 @@ class FormDenunciaState extends State<FormDenuncia> {
       fecha: DateFormat('dd/MM/yyyy').format(DateTime.now()),
       hora: DateFormat('HH:mm').format(DateTime.now()),
     );
+  }
+
+  //_guardarEvidencia
+  Future<void> _guardarEvidencia(int denunciaId, String url) async {
+    try {
+      final evidencia = Evidencia(
+        denunciaId: denunciaId,
+        url: url,
+        tipo: evidenciaStatusValue ?? '',
+        nombreArchivo: Path.basename(url),
+      );
+      await DatabaseHelper().insertEvidencia(evidencia);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al guardar evidencia: ${e.toString()}')),
+      );
+    }
   }
 
   // 3. Método para guardar en la BD
@@ -1608,8 +1610,42 @@ class FormDenunciaState extends State<FormDenuncia> {
           ),
           const SizedBox(height: 16),
 
+          DropdownButtonFormField<String>(
+            dropdownColor: Colors.white,
+            style: TextStyle(color: Colors.black),
+            value: evidenciaStatusValue,
+            hint: const Text('Selecciona evidencia'),
+            isExpanded: true,
+            onChanged: (String? newValue) {
+              setState(() {
+                evidenciaStatusValue = newValue!;
+                _servidorEvidenciaController.text = newValue;
+              });
+            },
+            items: const [
+              DropdownMenuItem(value: 'Imagenes', child: Text('Imagene(s)')),
+              DropdownMenuItem(value: 'Videos', child: Text('Video(s)')),
+              DropdownMenuItem(
+                value: 'Documentos',
+                child: Text('Documento(s)'),
+              ),
+              DropdownMenuItem(
+                value: 'Select',
+                child: Text('Selecciona la evidencia'),
+              ),
+            ],
+            validator: (value) {
+              if (value == null || value == 'Select' || value.isEmpty) {
+                return 'Por favor selecciona la evidencia';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+
           FileUploadSection(
             key: _uploaderKey,
+            tipoEvidencia: evidenciaStatusValue,
             onUrlsObtenidas: (urls) {
               _urlsEvidencias = urls;
             },
@@ -1816,6 +1852,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                   try {
                     // Guardar en base de datos y guardar id de denuncia
 
+                    final idDenuncia = await _guardarDenuncia();
+
                     final archivosSubidos = await _uploaderKey.currentState!
                         .subirArchivos('REF-123');
 
@@ -1827,8 +1865,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                       );
                       return;
                     }
-
-                    final idDenuncia = await _guardarDenuncia();
 
                     // guardar id de denuncia en el uploader
                     await _uploaderKey.currentState!.guardarEvidenciasLocales(

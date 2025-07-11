@@ -186,6 +186,9 @@ class guardadoExitoso extends StatelessWidget {
                 ),
 
                 builder: (context, snapshot) {
+                  print('snapshot.data: ${snapshot.data}');
+                  print('denuncia.id: ${denuncia.id}');
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -251,20 +254,6 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
-    final esVideo =
-        evidencia.tipo.toLowerCase() == 'video' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
-
-    final esArchivo =
-        evidencia.tipo.toLowerCase() == 'archivo' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pdf') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.doc') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -274,7 +263,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if (esImagen && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -362,9 +351,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }
@@ -1827,7 +1814,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                       );
                       return;
                     }
-
                     final idDenuncia = await _guardarDenuncia();
 
                     // guardar id de denuncia en el uploader

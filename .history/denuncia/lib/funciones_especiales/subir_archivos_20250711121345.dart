@@ -5,6 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+//import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:image/image.dart'; // Import the image package
+import 'package:flutter_image_compress/flutter_image_compress.dart'; // Import FlutterImageCompress package
 import 'package:path/path.dart' as path;
 import 'package:denuncia/models/denuncia.dart';
 import 'package:denuncia/models/db.dart';
@@ -53,6 +56,55 @@ class FileUploadSectionState extends State<FileUploadSection> {
       return maps.first['id'] as int;
     } else {
       throw Exception('Denuncia no encontrada');
+    }
+  }
+
+  // Función para verificar tamaño del archivo
+  bool _archivoEsDemasiadoGrande(File archivo) {
+    const limiteMB = 199;
+    final sizeInMB = archivo.lengthSync() / (1024 * 1024);
+    return sizeInMB > limiteMB;
+  }
+
+  // Función para determinar tipo de archivo comprimible
+  String _tipoArchivoComprimible(String filePath) {
+    final ext = path.extension(filePath).toLowerCase();
+    if (['.jpg', '.jpeg', '.png'].contains(ext)) return 'imagen';
+    if (['.mp4', '.mov'].contains(ext)) return 'video';
+    return 'no_comprimible';
+  }
+
+  // Funciones de compresión actualizadas
+  Future<File?> _comprimirVideo(File videoOriginal) async {
+    try {
+      final mediaInfo = await VideoCompress.compressVideo(
+        videoOriginal.path,
+        quality: VideoQuality.MediumQuality,
+        deleteOrigin: false,
+      );
+      return mediaInfo?.file;
+    } catch (e) {
+      print('Error comprimiendo video: $e');
+      return null;
+    }
+  }
+
+  Future<File?> _comprimirImagen(File imagenOriginal) async {
+    try {
+      final dir = await getTemporaryDirectory();
+      final targetPath =
+          '${dir.path}/compressed_${path.basename(imagenOriginal.path)}';
+
+      final result = await FlutterImageCompress.compressAndGetFile(
+        imagenOriginal.path,
+        targetPath,
+        quality: 70,
+      );
+
+      return result != null ? File(result.path) : null;
+    } catch (e) {
+      print('Error comprimiendo imagen: $e');
+      return null;
     }
   }
 
@@ -114,9 +166,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
     List<String> urls = const [],
   ]) async {
     try {
-      print(
-        '🟡 Intentando guardar ${_archivosSeleccionados.length} archivos con ID: $denunciaId',
-      );
       if (_archivosSeleccionados.isEmpty) return;
 
       final directory = await getApplicationDocumentsDirectory();
@@ -175,12 +224,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
-  bool _archivoEsDemasiadoGrande(File archivo) {
-    const limiteMB = 199;
-    final sizeInMB = archivo.lengthSync() / (1024 * 1024);
-    return sizeInMB > limiteMB;
-  }
-
   // Función pública para subir archivos desde el padre
   Future<bool> subirArchivos(String referenciaDenuncia) async {
     if (_archivosSeleccionados.isEmpty) {
@@ -188,20 +231,51 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
 
     List<String> urlsSubidas = [];
+    List<File> archivosTemporales = [];
 
     try {
       for (var archivo in _archivosSeleccionados) {
         final fileName = path.basename(archivo.path);
         final extension = fileName.split('.').last.toLowerCase();
 
+        final tipo = _tipoArchivoComprimible(archivo.path);
+
+        File? archivoAEnviar = archivo;
         bool archivoDemasiadoGrande = _archivoEsDemasiadoGrande(archivo);
 
         // Manejo de archivos grandes
         if (archivoDemasiadoGrande) {
-          widget.onError(
-            'El archivo $fileName es demasiado grande para subir (máximo 199MB).',
-          );
-          return false; // Saltar este archivo y continuar con los demás
+          if (tipo == 'imagen') {
+            archivoAEnviar = await _comprimirImagen(archivo);
+          } else if (tipo == 'video') {
+            archivoAEnviar = await _comprimirVideo(archivo);
+          }
+
+          // Verificar si después de comprimir sigue siendo grande
+          if (archivoAEnviar != null &&
+              _archivoEsDemasiadoGrande(archivoAEnviar)) {
+            widget.onError(
+              '$fileName sigue siendo muy grande después de compresión',
+            );
+            continue;
+          }
+
+          // Si es otro tipo de archivo y es grande
+          if (tipo == 'no_comprimible') {
+            widget.onError('$fileName excede 199MB y no se puede comprimir');
+            continue;
+          }
+
+          // Si la compresión falló
+          if (archivoAEnviar == null) {
+            widget.onError('No se pudo comprimir $fileName');
+            continue;
+          }
+
+          // Guardar referencia para limpieza
+          if (archivoAEnviar.path != archivo.path) {
+            archivosTemporales.add(archivoAEnviar);
+          }
         }
 
         var request = http.MultipartRequest(
@@ -213,10 +287,11 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
         request.fields['referencia'] = referenciaDenuncia;
         request.fields['tipo'] = extension;
+
         request.files.add(
           await http.MultipartFile.fromPath(
             'archivo',
-            archivo.path,
+            archivoAEnviar.path,
             filename: fileName,
           ),
         );
@@ -230,6 +305,15 @@ class FileUploadSectionState extends State<FileUploadSection> {
         } else {
           widget.onError('Error al subir $fileName: ${response.statusCode}');
           return false;
+        }
+      }
+
+      // Limpiar archivos temporales
+      for (var tempFile in archivosTemporales) {
+        try {
+          await tempFile.delete();
+        } catch (e) {
+          print('Error eliminando temporal: ${tempFile.path}');
         }
       }
 

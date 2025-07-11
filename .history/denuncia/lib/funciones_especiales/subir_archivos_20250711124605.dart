@@ -194,14 +194,14 @@ class FileUploadSectionState extends State<FileUploadSection> {
         final fileName = path.basename(archivo.path);
         final extension = fileName.split('.').last.toLowerCase();
 
-        bool archivoDemasiadoGrande = _archivoEsDemasiadoGrande(archivo);
+              bool archivoDemasiadoGrande = _archivoEsDemasiadoGrande(archivo);
 
-        // Manejo de archivos grandes
-        if (archivoDemasiadoGrande) {
-          widget.onError(
-            'El archivo $fileName es demasiado grande para subir (máximo 199MB).',
-          );
-          return false; // Saltar este archivo y continuar con los demás
+      // Manejo de archivos grandes
+      if (archivoDemasiadoGrande) {
+        if (tipo == 'imagen') {
+          archivoAEnviar = await _comprimirImagen(archivo);
+        } else if (tipo == 'video') {
+          archivoAEnviar = await _comprimirVideo(archivo);
         }
 
         var request = http.MultipartRequest(
@@ -213,6 +213,14 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
         request.fields['referencia'] = referenciaDenuncia;
         request.fields['tipo'] = extension;
+
+        // AQUI NECESITO CHECAR SI PESA MAS DE 199MB y si si almenoz intenta bajarle la resolucion en caso de que sea una imagen o video
+        // UTILIZA  FUNCIONES PARA LLAMARLAS Y PODER REUTILIZAR ESAS FUCNIONES EN DADO CASO QUE YO LO REQUIERA
+        //EN CASO DE QUE NI BAJANDOLE LA RESULICION NO SE PUEDA SUBIR, ENTONCES QUE ME DIGA QUE NO SE PUEDE SUBIR PORQUE PESA MAS DE 199MB
+        //-------------------------LO QUIERO ADENTRO DE AQUI-------------------------------------------
+
+        //------------------------------------------------------------------------------------------------
+
         request.files.add(
           await http.MultipartFile.fromPath(
             'archivo',

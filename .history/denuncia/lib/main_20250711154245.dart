@@ -11,6 +11,8 @@ import 'package:denuncia/funciones_especiales/subir_archivos.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_file/open_file.dart';
 
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -357,27 +359,54 @@ class guardadoExitoso extends StatelessWidget {
   Future<void> _openLocalFile(BuildContext context, String path) async {
     try {
       final file = File(path);
-      if (await file.exists()) {
-        final result = await OpenFile.open(path);
-        if (result.type != ResultType.done) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
-            ),
-          );
-        }
-      } else {
+      if (!await file.exists()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('El archivo local no existe')),
         );
+        return;
+      }
+
+      final extension = path.split('.').last.toLowerCase();
+
+      if (extension == 'pdf') {
+        // Mostrar PDF internamente
+        _showPdfViewer(context, path);
+      } else {
+        // Para otros tipos de archivo (imágenes, videos, etc.)
+        final result = await OpenFilex.open(path);
+        if (result.type != ResultType.done) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
+            ),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al abrir archivo: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al abrir archivo: ${e.toString()}')),
+      );
     }
+  }
+
+  void _showPdfViewer(BuildContext context, String filePath) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => Scaffold(
+              appBar: AppBar(
+                title: const Text('Visualizador de PDF'),
+                backgroundColor: const Color.fromARGB(255, 124, 36, 57),
+              ),
+              body: SfPdfViewer.file(
+                File(filePath),
+                canShowScrollHead: true,
+                canShowScrollStatus: true,
+              ),
+            ),
+      ),
+    );
   }
 
   bool _esAnonimo() {

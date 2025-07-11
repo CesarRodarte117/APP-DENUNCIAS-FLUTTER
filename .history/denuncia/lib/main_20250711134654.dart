@@ -274,7 +274,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if ((esImagen || esArchivo || esvideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -362,9 +362,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }

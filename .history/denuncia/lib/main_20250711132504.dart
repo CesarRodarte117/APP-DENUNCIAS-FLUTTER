@@ -11,6 +11,10 @@ import 'package:denuncia/funciones_especiales/subir_archivos.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_file/open_file.dart';
 
+// Agrega estos imports al inicio del archivo
+import 'package:video_player/video_player.dart';
+import 'package:open_filex/open_filex.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -186,6 +190,9 @@ class guardadoExitoso extends StatelessWidget {
                 ),
 
                 builder: (context, snapshot) {
+                  print('snapshot.data: ${snapshot.data}');
+                  print('denuncia.id: ${denuncia.id}');
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -251,20 +258,6 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.jpeg') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
-    final esVideo =
-        evidencia.tipo.toLowerCase() == 'video' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
-
-    final esArchivo =
-        evidencia.tipo.toLowerCase() == 'archivo' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pdf') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.doc') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -274,7 +267,7 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if (esImagen && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -362,9 +355,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }

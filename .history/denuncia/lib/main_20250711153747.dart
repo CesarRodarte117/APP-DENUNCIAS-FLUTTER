@@ -357,26 +357,79 @@ class guardadoExitoso extends StatelessWidget {
   Future<void> _openLocalFile(BuildContext context, String path) async {
     try {
       final file = File(path);
-      if (await file.exists()) {
-        final result = await OpenFile.open(path);
-        if (result.type != ResultType.done) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
-            ),
-          );
-        }
-      } else {
+      if (!await file.exists()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('El archivo local no existe')),
         );
+        return;
+      }
+
+      final extension = path.split('.').last.toLowerCase();
+
+      // Abrir con visor nativo usando open_filex
+      final result = await OpenFilex.open(path);
+
+      if (result.type != ResultType.done) {
+        // Si falla al abrir con aplicación externa, mostrar opción alternativa
+        _showAlternativeOpenOptions(context, path, extension);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al abrir archivo: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _showAlternativeOpenOptions(
+    BuildContext context,
+    String path,
+    String extension,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('No se pudo abrir el archivo'),
+            content: Text(
+              '¿Deseas intentar abrir este archivo .$extension de otra forma?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _viewPdfInternally(context, path); // Solo para PDFs
+                },
+                child: const Text('Ver internamente'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _viewPdfInternally(BuildContext context, String path) async {
+    try {
+      Navigator.push(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al abrir archivo: $e')));
+        MaterialPageRoute(
+          builder:
+              (context) => Scaffold(
+                appBar: AppBar(title: const Text('Visualizador de PDF')),
+                body: PdfViewPinch(
+                  controller: PdfControllerPinch(
+                    document: PdfDocument.openFile(path),
+                  ),
+                ),
+              ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al mostrar PDF: ${e.toString()}')),
+      );
     }
   }
 

@@ -108,6 +108,26 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
+  String _determinarTipoArchivo(String filePath) {
+    final extension = path.extension(filePath).toLowerCase();
+
+    switch (extension) {
+      case '.jpg':
+      case '.jpeg':
+      case '.png':
+        return 'imagen';
+      case '.mp4':
+      case '.mov':
+        return 'video';
+      case '.pdf':
+      case '.doc':
+      case '.docx':
+        return 'documento';
+      default:
+        return 'archivo';
+    }
+  }
+
   //GUARDAR ARCHIVOS SELECCIONADOS LOCALMENTE
   Future<void> guardarEvidenciasLocales(
     int denunciaId, [
@@ -143,8 +163,8 @@ class FileUploadSectionState extends State<FileUploadSection> {
           denunciaId: denunciaId,
           url: i < urls.length ? urls[i] : '', // usa URL si hay
           pathLocal: localPath,
-          tipo: _determinarTipoArchivo(archivo.path) ?? 'archivo_desconocido',
-          nombreArchivo: path.basename(archivo.path) ?? 'archivo_$i',
+          tipo: widget.tipoEvidencia ?? _determinarTipoArchivo(archivo.path),
+          nombreArchivo: path.basename(archivo.path),
         );
 
         evidencias.add(evidencia);
@@ -175,12 +195,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
-  bool _archivoEsDemasiadoGrande(File archivo) {
-    const limiteMB = 199;
-    final sizeInMB = archivo.lengthSync() / (1024 * 1024);
-    return sizeInMB > limiteMB;
-  }
-
   // Función pública para subir archivos desde el padre
   Future<bool> subirArchivos(String referenciaDenuncia) async {
     if (_archivosSeleccionados.isEmpty) {
@@ -194,16 +208,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
         final fileName = path.basename(archivo.path);
         final extension = fileName.split('.').last.toLowerCase();
 
-        bool archivoDemasiadoGrande = _archivoEsDemasiadoGrande(archivo);
-
-        // Manejo de archivos grandes
-        if (archivoDemasiadoGrande) {
-          widget.onError(
-            'El archivo $fileName es demasiado grande para subir (máximo 199MB).',
-          );
-          return false; // Saltar este archivo y continuar con los demás
-        }
-
         var request = http.MultipartRequest(
           'POST',
           Uri.parse(
@@ -213,6 +217,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
         request.fields['referencia'] = referenciaDenuncia;
         request.fields['tipo'] = extension;
+
         request.files.add(
           await http.MultipartFile.fromPath(
             'archivo',
@@ -238,7 +243,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
       }
       return true;
     } catch (e) {
-      widget.onError('Error al subir archivos, intentelo de nuevo.');
+      widget.onError('Error de conexión: ${e.toString()}');
       return false;
     }
   }

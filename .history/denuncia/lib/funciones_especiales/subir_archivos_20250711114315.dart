@@ -56,6 +56,64 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
+  // Función para verificar tamaño del archivo
+  bool _archivoEsDemasiadoGrande(File archivo) {
+    const limiteMB = 199;
+    final sizeInMB = archivo.lengthSync() / (1024 * 1024);
+    return sizeInMB > limiteMB;
+  }
+
+  // Función para determinar tipo de archivo
+  String _tipoArchivoParaCompresion(String filePath) {
+    final ext = path.extension(filePath).toLowerCase();
+    if (['.jpg', '.jpeg', '.png'].contains(ext)) return 'imagen';
+    if (['.mp4', '.mov'].contains(ext)) return 'video';
+    return 'otro';
+  }
+
+  // Función para comprimir imagen (solo si es necesario)
+  Future<File?> _comprimirImagenSiEsNecesario(File imagen) async {
+    if (!_archivoEsDemasiadoGrande(imagen)) return imagen;
+
+    try {
+      final bytes = await imagen.readAsBytes();
+      final image = decodeImage(bytes);
+      if (image == null) return null;
+
+      // Intentamos con diferentes calidades
+      for (var calidad in [75, 50, 30]) {
+        final compressed = File('${imagen.path}_comp.jpg')
+          ..writeAsBytesSync(encodeJpg(image, quality: calidad));
+
+        if (!_archivoEsDemasiadoGrande(compressed)) return compressed;
+      }
+      return null;
+    } catch (e) {
+      print('Error comprimiendo imagen: $e');
+      return null;
+    }
+  }
+
+  // Función para comprimir video (solo si es necesario)
+  Future<File?> _comprimirVideoSiEsNecesario(File video) async {
+    if (!_archivoEsDemasiadoGrande(video)) return video;
+
+    try {
+      final compressedPath = '${video.path}_comp.mp4';
+      final flutterFFmpeg = FlutterFFmpeg();
+
+      // Comando de compresión (ajustable)
+      final result = await flutterFFmpeg.execute(
+        '-i ${video.path} -vf "scale=720:-1" -c:v libx264 -crf 28 -preset fast -c:a aac -b:a 128k $compressedPath',
+      );
+
+      return result == 0 ? File(compressedPath) : null;
+    } catch (e) {
+      print('Error comprimiendo video: $e');
+      return null;
+    }
+  }
+
   String _determinarTipoArchivo(String path) {
     final extension = path.split('.').last.toLowerCase();
     if (['jpg', 'jpeg', 'png'].contains(extension)) return 'imagen';
@@ -175,12 +233,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
-  bool _archivoEsDemasiadoGrande(File archivo) {
-    const limiteMB = 199;
-    final sizeInMB = archivo.lengthSync() / (1024 * 1024);
-    return sizeInMB > limiteMB;
-  }
-
   // Función pública para subir archivos desde el padre
   Future<bool> subirArchivos(String referenciaDenuncia) async {
     if (_archivosSeleccionados.isEmpty) {
@@ -194,16 +246,6 @@ class FileUploadSectionState extends State<FileUploadSection> {
         final fileName = path.basename(archivo.path);
         final extension = fileName.split('.').last.toLowerCase();
 
-        bool archivoDemasiadoGrande = _archivoEsDemasiadoGrande(archivo);
-
-        // Manejo de archivos grandes
-        if (archivoDemasiadoGrande) {
-          widget.onError(
-            'El archivo $fileName es demasiado grande para subir (máximo 199MB).',
-          );
-          return false; // Saltar este archivo y continuar con los demás
-        }
-
         var request = http.MultipartRequest(
           'POST',
           Uri.parse(
@@ -213,6 +255,14 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
         request.fields['referencia'] = referenciaDenuncia;
         request.fields['tipo'] = extension;
+
+        // AQUI NECESITO CHECAR SI PESA MAS DE 199MB y si si almenoz intenta bajarle la resolucion en caso de que sea una imagen o video
+        // UTILIZA  FUNCIONES PARA LLAMARLAS Y PODER REUTILIZAR ESAS FUCNIONES EN DADO CASO QUE YO LO REQUIERA
+        //EN CASO DE QUE NI BAJANDOLE LA RESULICION NO SE PUEDA SUBIR, ENTONCES QUE ME DIGA QUE NO SE PUEDE SUBIR PORQUE PESA MAS DE 199MB
+        //-------------------------LO QUIERO ADENTRO DE AQUI-------------------------------------------
+
+        //------------------------------------------------------------------------------------------------
+
         request.files.add(
           await http.MultipartFile.fromPath(
             'archivo',

@@ -279,27 +279,26 @@ class guardadoExitoso extends StatelessWidget {
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(evidencia.pathLocal!),
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 180,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.broken_image, size: 50),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No se pudo cargar la imagen',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    );
+                child: FutureBuilder<Widget>(
+                  future: _buildThumbnail(evidencia),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        height: 180,
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError || !snapshot.hasData) {
+                      return Container(
+                        height: 180,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.broken_image, size: 50),
+                      );
+                    }
+
+                    return snapshot.data!;
                   },
                 ),
               ),
@@ -362,9 +361,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }

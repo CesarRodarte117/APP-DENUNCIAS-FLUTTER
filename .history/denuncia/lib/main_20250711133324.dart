@@ -11,6 +11,10 @@ import 'package:denuncia/funciones_especiales/subir_archivos.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_file/open_file.dart';
 
+// Agrega estos imports al inicio del archivo
+import 'package:video_player/video_player.dart';
+import 'package:open_file/open_file.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -186,6 +190,9 @@ class guardadoExitoso extends StatelessWidget {
                 ),
 
                 builder: (context, snapshot) {
+                  print('snapshot.data: ${snapshot.data}');
+                  print('denuncia.id: ${denuncia.id}');
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -244,6 +251,7 @@ class guardadoExitoso extends StatelessWidget {
     );
   }
 
+  // Actualiza el método _buildEvidenciaItem
   Widget _buildEvidenciaItem(BuildContext context, Evidencia evidencia) {
     final esImagen =
         evidencia.tipo.toLowerCase() == 'imagen' ||
@@ -254,16 +262,7 @@ class guardadoExitoso extends StatelessWidget {
     final esVideo =
         evidencia.tipo.toLowerCase() == 'video' ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
-
-    final esArchivo =
-        evidencia.tipo.toLowerCase() == 'archivo' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pdf') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.doc') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
+        evidencia.nombreArchivo.toLowerCase().endsWith('.mov');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -274,44 +273,22 @@ class guardadoExitoso extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if ((esImagen || esArchivo || esVideo) && evidencia.pathLocal != null)
+          if (evidencia.pathLocal != null)
             InkWell(
-              onTap: () => _openLocalFile(context, evidencia.pathLocal!),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(evidencia.pathLocal!),
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 180,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.broken_image, size: 50),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No se pudo cargar la imagen',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+              onTap: () => _openFileAccordingToType(context, evidencia),
+              child: Container(
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade100,
                 ),
-              ),
-            )
-          else
-            Container(
-              height: 180,
-              alignment: Alignment.center,
-              child: Icon(
-                _getIconForFileType(evidencia.nombreArchivo),
-                size: 50,
-                color: primaryColor,
+                child:
+                    esImagen
+                        ? _buildImagePreview(evidencia.pathLocal!)
+                        : esVideo
+                        ? _buildVideoPreview(evidencia.pathLocal!)
+                        : _buildGenericFilePreview(evidencia),
               ),
             ),
           Padding(
@@ -319,23 +296,104 @@ class guardadoExitoso extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (evidencia.pathLocal != null)
-                  InkWell(
-                    onTap: () => _openLocalFile(context, evidencia.pathLocal!),
-                    child: Text(
-                      evidencia.nombreArchivo,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                InkWell(
+                  onTap: () => _openFileAccordingToType(context, evidencia),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _getIconForFileType(evidencia.nombreArchivo),
+                        size: 20,
+                        color: primaryColor,
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          evidencia.nombreArchivo,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildImagePreview(String imagePath) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildErrorPreview(),
+      ),
+    );
+  }
+
+  Widget _buildVideoPreview(String videoPath) {
+    return FutureBuilder(
+      future: _getVideoThumbnail(videoPath),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.file(File(snapshot.data!), fit: BoxFit.cover),
+              const Icon(Icons.play_circle_fill, size: 50, color: Colors.white),
+            ],
+          );
+        }
+        return _buildLoadingPreview();
+      },
+    );
+  }
+
+  Widget _buildGenericFilePreview(Evidencia evidencia) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _getIconForFileType(evidencia.nombreArchivo),
+            size: 50,
+            color: primaryColor,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Toca para abrir',
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorPreview() {
+    return Container(
+      color: Colors.grey.shade200,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.broken_image, size: 50),
+          const SizedBox(height: 8),
+          Text(
+            'No se pudo cargar la vista previa',
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingPreview() {
+    return const Center(child: CircularProgressIndicator());
   }
 
   IconData _getIconForFileType(String fileName) {
@@ -362,9 +420,7 @@ class guardadoExitoso extends StatelessWidget {
         if (result.type != ResultType.done) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'No se pudo abrir el archivo, se requiere una aplicación compatible para abrirlo.',
-              ),
+              content: Text('No se pudo abrir el archivo: ${result.message}'),
             ),
           );
         }
@@ -435,6 +491,116 @@ class guardadoExitoso extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<String> _getVideoThumbnail(String videoPath) async {
+  // Implementación básica - considera usar el paquete video_thumbnail para mejor calidad
+  final directory = await getTemporaryDirectory();
+  final thumbnailPath =
+      '${directory.path}/thumbnail_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+  // Aquí deberías generar la miniatura del video
+  // Por ahora devolvemos el mismo path como placeholder
+  return videoPath;
+}
+
+Future<void> _openFileAccordingToType(
+  BuildContext context,
+  Evidencia evidencia,
+) async {
+  final file = File(evidencia.pathLocal!);
+  final extension = evidencia.nombreArchivo.split('.').last.toLowerCase();
+
+  if (!await file.exists()) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('El archivo no existe localmente')),
+    );
+    return;
+  }
+
+  try {
+    if (extension == 'mp4' || extension == 'mov') {
+      // Reproducir video
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VideoPlayerScreen(filePath: file.path),
+        ),
+      );
+    } else {
+      // Abrir con aplicación externa
+      final result = await OpenFilex.open(file.path);
+      if (result.type != ResultType.done) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No se pudo abrir el archivo: ${result.message}'),
+          ),
+        );
+      }
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Error al abrir el archivo: $e')));
+  }
+}
+
+// Clase para el reproductor de video
+class VideoPlayerScreen extends StatefulWidget {
+  final String filePath;
+
+  const VideoPlayerScreen({required this.filePath});
+
+  @override
+  _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
+}
+
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.filePath))
+      ..initialize().then((_) {
+        setState(() {});
+        _controller.play();
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Reproductor de video')),
+      body: Center(
+        child:
+            _controller.value.isInitialized
+                ? AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                )
+                : const CircularProgressIndicator(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _controller.value.isPlaying
+                ? _controller.pause()
+                : _controller.play();
+          });
+        },
+        child: Icon(
+          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
