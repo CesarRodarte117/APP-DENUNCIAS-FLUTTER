@@ -311,8 +311,7 @@ class guardadoExitoso extends StatelessWidget {
                 ),
               ),
             )
-          else if ((esArchivo || esVideo || esAudio) &&
-              evidencia.pathLocal != null)
+          else if ((esArchivo || esVideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -371,10 +370,8 @@ class guardadoExitoso extends StatelessWidget {
       case 'docx':
         return Icons.description;
       case 'mp4':
+      case 'mov':
         return Icons.videocam;
-      case 'mp3':
-      case 'wav':
-        return Icons.audiotrack;
       default:
         return Icons.insert_drive_file;
     }

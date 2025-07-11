@@ -252,14 +252,10 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.png');
 
     final esVideo =
-        evidencia.tipo.toLowerCase() == 'mp4' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4');
-
-    final esAudio =
-        evidencia.tipo.toLowerCase() == 'mp3' ||
-        evidencia.tipo.toLowerCase() == 'wav' ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.mp3') ||
-        evidencia.nombreArchivo.toLowerCase().endsWith('.wav');
+        evidencia.tipo.toLowerCase() == 'video' ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.mp4') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.mov') ||
+        evidencia.nombreArchivo.toLowerCase().endsWith('.avi');
 
     final esArchivo =
         evidencia.tipo.toLowerCase() == 'archivo' ||
@@ -268,9 +264,6 @@ class guardadoExitoso extends StatelessWidget {
         evidencia.nombreArchivo.toLowerCase().endsWith('.docx') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.xlsx') ||
         evidencia.nombreArchivo.toLowerCase().endsWith('.pptx');
-    print(
-      '🔴 Evidencia url: ${evidencia.url}, Tipo: ${evidencia.tipo}, Path Local: ${evidencia.pathLocal}',
-    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -311,8 +304,7 @@ class guardadoExitoso extends StatelessWidget {
                 ),
               ),
             )
-          else if ((esArchivo || esVideo || esAudio) &&
-              evidencia.pathLocal != null)
+          else if ((esArchivo || esVideo) && evidencia.pathLocal != null)
             InkWell(
               onTap: () => _openLocalFile(context, evidencia.pathLocal!),
               child: ClipRRect(
@@ -371,10 +363,8 @@ class guardadoExitoso extends StatelessWidget {
       case 'docx':
         return Icons.description;
       case 'mp4':
+      case 'mov':
         return Icons.videocam;
-      case 'mp3':
-      case 'wav':
-        return Icons.audiotrack;
       default:
         return Icons.insert_drive_file;
     }

@@ -61,8 +61,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
     final extension = path.split('.').last.toLowerCase();
     if (['jpg', 'jpeg', 'png'].contains(extension)) return 'imagen';
     if (['pdf', 'doc', 'docx'].contains(extension)) return 'documento';
-    if (['mp4'].contains(extension)) return 'video';
-    if (['mp3', 'wav'].contains(extension)) return 'audio';
+    if (['mp4', 'mp3', 'wav'].contains(extension)) return 'video';
     return 'archivo';
   }
 
@@ -339,10 +338,8 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
     if (['jpg', 'jpeg', 'png'].contains(extension)) {
       return Icons.image;
-    } else if (['mp4'].contains(extension)) {
+    } else if (['mp4', 'mp3', 'wav'].contains(extension)) {
       return Icons.videocam;
-    } else if (['mp3', 'wav'].contains(extension)) {
-      return Icons.audiotrack;
     } else if (['pdf'].contains(extension)) {
       return Icons.picture_as_pdf;
     } else if (['doc', 'docx'].contains(extension)) {

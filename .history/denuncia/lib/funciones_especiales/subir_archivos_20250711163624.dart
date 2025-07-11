@@ -339,10 +339,8 @@ class FileUploadSectionState extends State<FileUploadSection> {
 
     if (['jpg', 'jpeg', 'png'].contains(extension)) {
       return Icons.image;
-    } else if (['mp4'].contains(extension)) {
+    } else if (['mp4', 'mp3', 'wav'].contains(extension)) {
       return Icons.videocam;
-    } else if (['mp3', 'wav'].contains(extension)) {
-      return Icons.audiotrack;
     } else if (['pdf'].contains(extension)) {
       return Icons.picture_as_pdf;
     } else if (['doc', 'docx'].contains(extension)) {
