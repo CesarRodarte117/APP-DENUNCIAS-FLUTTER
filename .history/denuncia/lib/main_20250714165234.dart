@@ -851,10 +851,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   bool _isCargando = false;
   String cargandoText = 'Cargando...';
 
-  bool visiblefechamensaje = false;
-  String fechamensaje = '';
-  Color colorfechaBorde = Colors.transparent;
-
   // 2. Método para crear objeto Denuncia
   Denuncia _crearDenuncia() {
     return Denuncia(
@@ -908,10 +904,8 @@ class FormDenunciaState extends State<FormDenuncia> {
 
   // formulario
   Widget _buildStep() {
-    // Contenido principal según el paso actual
-    Widget stepContent;
     if (_currentStep == 0) {
-      stepContent = Column(
+      return Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -1203,812 +1197,839 @@ class FormDenunciaState extends State<FormDenuncia> {
         ],
       );
     } else if (_currentStep == 1) {
-      stepContent = Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-            child: Container(
-              //navbar apartado
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Color.fromARGB(255, 124, 36, 57), // Color del borde
-                  width: 1.5, // Ancho del borde
-                ),
-                borderRadius: BorderRadius.circular(
-                  5,
-                ), // Opcional: redondea las esquinas
-              ),
-              child: LinearProgressIndicator(
-                value: (_currentStep + 1) / 2,
-                backgroundColor: Colors.white.withOpacity(0.3),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Color.fromARGB(255, 124, 36, 57),
-                ),
-              ),
-            ),
-          ),
-          //Datos del servidor
-          const Text(
-            'Datos del servidor público',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorNombreController,
-            decoration: const InputDecoration(
-              labelText: 'Nombre del servidor',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length <= 2) {
-                return 'Por favor ingresa el nombre del servidor';
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorCargoController,
-            decoration: const InputDecoration(
-              labelText: 'Cargo del servidor',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length <= 4) {
-                return 'Por favor ingresa el cargo del servidor';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          DropdownButtonFormField<String>(
-            dropdownColor: Colors.white,
-            style: TextStyle(color: Colors.black),
-            value: dependenciaStatusValue,
-            hint: const Text('Selecciona la dependencia'),
-            isExpanded: true,
-            onChanged: (String? newValue) {
-              setState(() {
-                dependenciaStatusValue = newValue!;
-                _servidorDependenciaController.text = newValue;
-              });
-            },
-            items: const [
-              DropdownMenuItem(
-                value: '117',
-                child: Text(' SELECCIONA LA DEPENDENCIA'),
-              ),
-              DropdownMenuItem(
-                value: 'Administracion de la ciudad',
-                child: Text('Administracion de la ciudad'),
-              ),
-              DropdownMenuItem(
-                value: 'Asociaciones religiosas',
-                child: Text('Asociaciones religiosas'),
-              ),
-              DropdownMenuItem(
-                value: 'Comunicación social',
-                child: Text('Comunicación social'),
-              ),
-              DropdownMenuItem(
-                value: 'Contraloria municipal',
-                child: Text('Contraloria municipal'),
-              ),
-              DropdownMenuItem(
-                value: 'Contraluria municipal',
-                child: Text('Contraluria municipal'),
-              ),
-              DropdownMenuItem(
-                value: 'Control de trafico',
-                child: Text('Control de trafico'),
-              ),
-              DropdownMenuItem(
-                value: 'Coordinación de atencion ciudadana',
-                child: Text('Coordinación de atencion ciudadana'),
-              ),
-              DropdownMenuItem(
-                value: 'Coordinación de contacto social',
-                child: Text('Coordinación de contacto social'),
-              ),
-              DropdownMenuItem(
-                value: 'Coordinación de redes sociales',
-                child: Text('Coordinación de redes sociales'),
-              ),
-              DropdownMenuItem(
-                value: 'Coordinadora de atencion ciudadana del sur oriente',
-                child: Text(
-                  'Coordinadora de atencion ciudadana del sur oriente',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de alumbrado',
-                child: Text('Dirección de alumbrado'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de asuntos internos',
-                child: Text('Dirección de asuntos internos'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de catastro',
-                child: Text('Dirección de catastro'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de desarrollo rural',
-                child: Text('Dirección de desarrollo rural'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de ecologia',
-                child: Text('Dirección de ecologia'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de educación',
-                child: Text('Dirección de educación'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de gobierno',
-                child: Text('Dirección de gobierno'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de industrializacion agropecuaria',
-                child: Text('Dirección de industrializacion agropecuaria'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de ingresos',
-                child: Text('Dirección de ingresos'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de limpia',
-                child: Text('Dirección de limpia'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de parques y jardines',
-                child: Text('Dirección de parques y jardines'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de recursos humanos',
-                child: Text('Dirección de recursos humanos'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de regularizacion comercial',
-                child: Text('Dirección de regularizacion comercial'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de responsabilidades',
-                child: Text('Dirección de responsabilidades'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección de salud municipal',
-                child: Text('Dirección de salud municipal'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de asentamientos humanos',
-                child: Text('Dirección general de asentamientos humanos'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de centros comunitarios',
-                child: Text('Dirección general de centros comunitarios'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de desarrollo económico',
-                child: Text('Dirección general de desarrollo económico'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de desarrollo social',
-                child: Text('Dirección general de desarrollo social'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de desarrollo urbano',
-                child: Text('Dirección general de desarrollo urbano'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de informatica y comunicaciones',
-                child: Text(
-                  'Dirección general de informatica y comunicaciones',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de obras publicas',
-                child: Text('Dirección general de obras publicas'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de protección civil',
-                child: Text('Dirección general de protección civil'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de servicios publicos',
-                child: Text('Dirección general de servicios publicos'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección general de transito municipal',
-                child: Text('Dirección general de transito municipal'),
-              ),
-              DropdownMenuItem(
-                value: 'Dirección juridica',
-                child: Text('Dirección juridica'),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Instituto municipal de investigacion y planacion (imip)',
-                child: Text(
-                  'Instituto municipal de investigacion y planacion (imip)',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Instituto municipal de las mujeres (imm)',
-                child: Text('Instituto municipal de las mujeres (imm)'),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Instituto municipal del deporte y cultura fisica de juarez',
-                child: Text(
-                  'Instituto municipal del deporte y cultura fisica de juarez',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Instituto municipal del juventud de juarez (imjj)',
-                child: Text(
-                  'Instituto municipal del juventud de juarez (imjj)',
-                ),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Instituto para la cultura del municipio de juarez (icmj)',
-                child: Text(
-                  'Instituto para la cultura del municipio de juarez (icmj)',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Oficialia mayor',
-                child: Text('Oficialia mayor'),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Operadora municipal de estacionamientos de juarez (omej)',
-                child: Text(
-                  'Operadora municipal de estacionamientos de juarez (omej)',
-                ),
-              ),
-              DropdownMenuItem(value: 'Otros', child: Text('Otros')),
-              DropdownMenuItem(
-                value: 'Secretaria de seguridad publica',
-                child: Text('Secretaria de seguridad publica'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaria del ayuntamiento',
-                child: Text('Secretaria del ayuntamiento'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaria particular',
-                child: Text('Secretaria particular'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaria tecnica (070)',
-                child: Text('Secretaria tecnica (070)'),
-              ),
-              DropdownMenuItem(
-                value: 'Sindicato unico de trabajadores municipales',
-                child: Text('Sindicato unico de trabajadores municipales'),
-              ),
-              DropdownMenuItem(
-                value: 'Sistema de urbanizacion municipal adicional (suma)',
-                child: Text(
-                  'Sistema de urbanizacion municipal adicional (suma)',
-                ),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Sistema para el desarrollo integral de la familia (dif)',
-                child: Text(
-                  'Sistema para el desarrollo integral de la familia (dif)',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Tesoreria municipal',
-                child: Text('Tesoreria municipal'),
-              ),
-            ],
-            validator: (value) {
-              if (value == null || value == '117' || value.isEmpty) {
-                return 'Por favor selecciona la dependencia';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorIdentificacionDetalleController,
-            decoration: const InputDecoration(
-              labelText: 'Otros datos para su identificación',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length <= 4) {
-                return 'Por favor ingresa mas datos para su identificación';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: DropdownButtonFormField<String>(
-                  dropdownColor: Colors.white,
-                  style: TextStyle(color: Colors.black),
-                  value: echodropdownValue,
-                  hint: const Text('Lugar del hecho'),
-                  isExpanded: true,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      echodropdownValue = newValue!;
-                      _servidorEchoController.text = newValue;
-                    });
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'Publica',
-                      child: Text('En via pública'),
+      return SizedBox.expand(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8,
                     ),
-                    DropdownMenuItem(
-                      value: 'Dependencia',
-                      child: Text('En la dependencia'),
+                    child: Container(
+                      //navbar apartado
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(
+                            255,
+                            124,
+                            36,
+                            57,
+                          ), // Color del borde
+                          width: 1.5, // Ancho del borde
+                        ),
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ), // Opcional: redondea las esquinas
+                      ),
+                      child: LinearProgressIndicator(
+                        value: (_currentStep + 1) / 2,
+                        backgroundColor: Colors.white.withOpacity(0.3),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color.fromARGB(255, 124, 36, 57),
+                        ),
+                      ),
                     ),
-                    DropdownMenuItem(
-                      value: 'Particular',
-                      child: Text('En un particular'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Casa',
-                      child: Text('En el domicilio particular'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Select',
-                      child: Text('Lugar del echo'),
-                    ),
-                  ],
-                  validator: (value) {
-                    if (value == null || value == 'Select' || value.isEmpty) {
-                      return 'Por favor selecciona el lugar del hecho';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 1,
-                child: TextFormField(
-                  controller: _servidorDistritoController,
-                  //poner el teclado en numerico
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Distrito',
-                    border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if ((value == null || value.isEmpty)) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorDireccionController,
-            decoration: const InputDecoration(
-              labelText: 'Dirección del hecho',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length <= 3) {
-                return 'Por favor ingresa la dirección del hecho';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorDireccionCallesController,
-            decoration: const InputDecoration(
-              labelText: 'Entre calles',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if ((value == null || value.isEmpty) || value.length <= 3) {
-                return 'Porfavor ingresa entre que calles';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorColoniaController,
-            decoration: const InputDecoration(
-              labelText: 'Colonia',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length <= 1) {
-                return 'Por favor ingresa la colonia';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final selectedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2026),
-              );
-
-              if (selectedDate != null && selectedDate is DateTime) {
-                // Aquí la comparación con DateTime ahora debería funcionar
-                setState(() {
-                  if (selectedDate.isBefore(DateTime.now()) ||
-                      selectedDate.isAtSameMomentAs(DateTime.now())) {
-                    visiblefecha = true;
-                    visiblefechamensaje = false;
-                    fechaSeleccionada = DateFormat(
-                      'd/M/yyyy',
-                    ).format(selectedDate);
-                    _servidorFechaOcurridoController.text = fechaSeleccionada;
-                    colorFecha = Colors.black;
-                  } else {
-                    colorFecha = const Color.fromARGB(255, 212, 47, 47);
-                    visiblefecha = false;
-                    visiblefechamensaje = true;
-                    fechamensaje = 'La fecha no puede ser mayor a la actual';
-                    _servidorFechaOcurridoController.text = '';
-                    fechaSeleccionada = '';
-                  }
-                });
-              } else {
-                setState(() {
-                  visiblefecha = false;
-                  visiblefechamensaje = true;
-                  fechamensaje = 'No se seleccionó una fecha válida';
-                });
-              }
-            },
-            child: Text('SELECCIONAR FECHA DE OCURRENCIA'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26), // Bordes redondeados
-                side: BorderSide(
-                  color: colorfechaBorde, // Color del borde
-                  width: 1.0, // Grosor del borde
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Visibility(
-            visible: visiblefechamensaje,
-            child: Text(
-              "$fechamensaje",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
-          Visibility(
-            visible: visiblefecha,
-            child: Text(
-              "$fechaSeleccionada",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          FileUploadSection(
-            key: _uploaderKey,
-            onUrlsObtenidas: (urls) {
-              _urlsEvidencias = urls;
-            },
-            onError: (error) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(error)));
-            },
-          ),
-
-          const SizedBox(height: 16),
-
-          TextFormField(
-            controller: _servidorMotivoController,
-            decoration: const InputDecoration(
-              labelText: 'Señale el motivo y narre los hechos',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  (value.length < 2 || value.length > 150)) {
-                return 'Por favor ingresa el motivo y narra los hechos';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 32),
-
-          CheckboxListTile(
-            // shape: ShapeBorder.colored(
-            //   side: const BorderSide(color: Colors.white, width: 2.0),
-            //   shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(4.0),
-            //   ),
-            // ),
-            title: Text(
-              'Términos y condiciones',
-              style: TextStyle(color: colorterminos),
-            ),
-
-            value: TerminosyCondicionesValue,
-            tileColor: Colors.white,
-            activeColor: const Color.fromARGB(255, 124, 36, 57),
-            checkColor: Colors.white,
-
-            //color de texto
-            onChanged: (bool? value) {
-              setState(() {
-                TerminosyCondicionesValue = value ?? false;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TermsAndConditionsScreen(),
+                  //Datos del servidor
+                  const Text(
+                    'Datos del servidor público',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                );
-                colorterminos = Colors.black;
-              });
-            },
-            controlAffinity:
-                ListTileControlAffinity
-                    .leading, // Coloca la casilla a la izquierda
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: ElevatedButton(
-              onPressed: () async {
-                try {
-                  await Future.delayed(Duration.zero);
-                  setState(() {
-                    _isCargando = true;
-                    cargandoText = 'Validando datos...';
-                  });
-                  await Future.delayed(Duration.zero);
-                  // Resetear colores
-                  setState(() {
-                    colorFecha = Colors.black;
-                    colorterminos = Colors.black;
-                    colorfechaBorde = Colors.transparent;
-                  });
-                  print('Cambiando _isCargando a: $_isCargando');
-                  // Validar campos requeridos
-                  bool hasErrors = false;
+                  const SizedBox(height: 16),
 
-                  if (!TerminosyCondicionesValue) {
-                    setState(() {
-                      cargandoText =
-                          'Por favor acepta los términos y condiciones';
-                      Duration(seconds: 2);
-                      colorterminos = const Color.fromARGB(255, 212, 47, 47);
-                      hasErrors = true;
-                      _isCargando = false;
-                    });
-                  }
+                  TextFormField(
+                    controller: _servidorNombreController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre del servidor',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length <= 2) {
+                        return 'Por favor ingresa el nombre del servidor';
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                  if (visiblefecha == false) {
-                    setState(() {
-                      visiblefechamensaje = true;
-                      fechamensaje = 'Por favor selecciona una fecha';
-                      cargandoText = 'Por favor selecciona una fecha';
-                      Duration(seconds: 2);
-                      colorFecha = const Color.fromARGB(255, 212, 47, 47);
-                      hasErrors = true;
-                      _isCargando = false;
-                    });
-                  }
-                  setState(() {
-                    cargandoText = 'Guardando denuncia...';
-                    // comprobar datos si estan vacios del usuario se registren como anonimos
-                    if (anonimoValue) {
-                      _nombreController.text = 'Anónimo';
-                      _apellidosController.text = 'Anónimo';
-                      _telefonoController.text = 'Anónimo';
-                      _correoController.text = 'Anónimo';
-                      _direccionController.text = 'Anónimo';
-                      _direccionNumeroController.text = 'Anónimo';
-                      _coloniaController.text = 'Anónimo';
-                      _edadController.text = 'Anónimo';
-                      _sexoController.text = 'Anónimo';
-                      _ocupacionController.text = 'Anónimo';
-                      _nacionalidadController.text = 'Anónimo';
-                    } else {
-                      _nombreController.text =
-                          _nombreController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _nombreController.text;
-                      _apellidosController.text =
-                          _apellidosController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _apellidosController.text;
-                      _telefonoController.text =
-                          _telefonoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _telefonoController.text;
-                      _correoController.text =
-                          _correoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _correoController.text;
-                      _direccionController.text =
-                          _direccionController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _direccionController.text;
-                      _direccionNumeroController.text =
-                          _direccionNumeroController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _direccionNumeroController.text;
-                      _coloniaController.text =
-                          _coloniaController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _coloniaController.text;
-                      _edadController.text =
-                          _edadController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _edadController.text;
-                      _sexoController.text =
-                          _sexoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _sexoController.text;
-                      _ocupacionController.text =
-                          _ocupacionController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _ocupacionController.text;
-                      _nacionalidadController.text =
-                          _nacionalidadController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _nacionalidadController.text;
-                    }
-                  });
+                  TextFormField(
+                    controller: _servidorCargoController,
+                    decoration: const InputDecoration(
+                      labelText: 'Cargo del servidor',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length <= 4) {
+                        return 'Por favor ingresa el cargo del servidor';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                  // Validar formulario y guardar
-                  if (_formkey.currentState!.validate() && !hasErrors) {
-                    setState(() {
-                      _isCargando = true;
-                      cargandoText = 'Subiendo archivos...';
-                    });
-                    try {
-                      // Guardar en base de datos y guardar id de denuncia
-                      final archivosSubidos = await _uploaderKey.currentState!
-                          .subirArchivos('REF-123');
+                  DropdownButtonFormField<String>(
+                    dropdownColor: Colors.white,
+                    style: TextStyle(color: Colors.black),
+                    value: dependenciaStatusValue,
+                    hint: const Text('Selecciona la dependencia'),
+                    isExpanded: true,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        dependenciaStatusValue = newValue!;
+                        _servidorDependenciaController.text = newValue;
+                      });
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        value: '117',
+                        child: Text(' SELECCIONA LA DEPENDENCIA'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Administracion de la ciudad',
+                        child: Text('Administracion de la ciudad'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Asociaciones religiosas',
+                        child: Text('Asociaciones religiosas'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Comunicación social',
+                        child: Text('Comunicación social'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Contraloria municipal',
+                        child: Text('Contraloria municipal'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Contraluria municipal',
+                        child: Text('Contraluria municipal'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Control de trafico',
+                        child: Text('Control de trafico'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Coordinación de atencion ciudadana',
+                        child: Text('Coordinación de atencion ciudadana'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Coordinación de contacto social',
+                        child: Text('Coordinación de contacto social'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Coordinación de redes sociales',
+                        child: Text('Coordinación de redes sociales'),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Coordinadora de atencion ciudadana del sur oriente',
+                        child: Text(
+                          'Coordinadora de atencion ciudadana del sur oriente',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de alumbrado',
+                        child: Text('Dirección de alumbrado'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de asuntos internos',
+                        child: Text('Dirección de asuntos internos'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de catastro',
+                        child: Text('Dirección de catastro'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de desarrollo rural',
+                        child: Text('Dirección de desarrollo rural'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de ecologia',
+                        child: Text('Dirección de ecologia'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de educación',
+                        child: Text('Dirección de educación'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de gobierno',
+                        child: Text('Dirección de gobierno'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de industrializacion agropecuaria',
+                        child: Text(
+                          'Dirección de industrializacion agropecuaria',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de ingresos',
+                        child: Text('Dirección de ingresos'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de limpia',
+                        child: Text('Dirección de limpia'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de parques y jardines',
+                        child: Text('Dirección de parques y jardines'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de recursos humanos',
+                        child: Text('Dirección de recursos humanos'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de regularizacion comercial',
+                        child: Text('Dirección de regularizacion comercial'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de responsabilidades',
+                        child: Text('Dirección de responsabilidades'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección de salud municipal',
+                        child: Text('Dirección de salud municipal'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de asentamientos humanos',
+                        child: Text(
+                          'Dirección general de asentamientos humanos',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de centros comunitarios',
+                        child: Text(
+                          'Dirección general de centros comunitarios',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de desarrollo económico',
+                        child: Text(
+                          'Dirección general de desarrollo económico',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de desarrollo social',
+                        child: Text('Dirección general de desarrollo social'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de desarrollo urbano',
+                        child: Text('Dirección general de desarrollo urbano'),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Dirección general de informatica y comunicaciones',
+                        child: Text(
+                          'Dirección general de informatica y comunicaciones',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de obras publicas',
+                        child: Text('Dirección general de obras publicas'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de protección civil',
+                        child: Text('Dirección general de protección civil'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de servicios publicos',
+                        child: Text('Dirección general de servicios publicos'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección general de transito municipal',
+                        child: Text('Dirección general de transito municipal'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Dirección juridica',
+                        child: Text('Dirección juridica'),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Instituto municipal de investigacion y planacion (imip)',
+                        child: Text(
+                          'Instituto municipal de investigacion y planacion (imip)',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Instituto municipal de las mujeres (imm)',
+                        child: Text('Instituto municipal de las mujeres (imm)'),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Instituto municipal del deporte y cultura fisica de juarez',
+                        child: Text(
+                          'Instituto municipal del deporte y cultura fisica de juarez',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Instituto municipal del juventud de juarez (imjj)',
+                        child: Text(
+                          'Instituto municipal del juventud de juarez (imjj)',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Instituto para la cultura del municipio de juarez (icmj)',
+                        child: Text(
+                          'Instituto para la cultura del municipio de juarez (icmj)',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Oficialia mayor',
+                        child: Text('Oficialia mayor'),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Operadora municipal de estacionamientos de juarez (omej)',
+                        child: Text(
+                          'Operadora municipal de estacionamientos de juarez (omej)',
+                        ),
+                      ),
+                      DropdownMenuItem(value: 'Otros', child: Text('Otros')),
+                      DropdownMenuItem(
+                        value: 'Secretaria de seguridad publica',
+                        child: Text('Secretaria de seguridad publica'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Secretaria del ayuntamiento',
+                        child: Text('Secretaria del ayuntamiento'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Secretaria particular',
+                        child: Text('Secretaria particular'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Secretaria tecnica (070)',
+                        child: Text('Secretaria tecnica (070)'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Sindicato unico de trabajadores municipales',
+                        child: Text(
+                          'Sindicato unico de trabajadores municipales',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Sistema de urbanizacion municipal adicional (suma)',
+                        child: Text(
+                          'Sistema de urbanizacion municipal adicional (suma)',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value:
+                            'Sistema para el desarrollo integral de la familia (dif)',
+                        child: Text(
+                          'Sistema para el desarrollo integral de la familia (dif)',
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Tesoreria municipal',
+                        child: Text('Tesoreria municipal'),
+                      ),
+                    ],
+                    validator: (value) {
+                      if (value == null || value == '117' || value.isEmpty) {
+                        return 'Por favor selecciona la dependencia';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
-                      if (!archivosSubidos) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Error al subir archivos'),
+                  TextFormField(
+                    controller: _servidorIdentificacionDetalleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Otros datos para su identificación',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length <= 4) {
+                        return 'Por favor ingresa mas datos para su identificación';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: DropdownButtonFormField<String>(
+                          dropdownColor: Colors.white,
+                          style: TextStyle(color: Colors.black),
+                          value: echodropdownValue,
+                          hint: const Text('Lugar del hecho'),
+                          isExpanded: true,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              echodropdownValue = newValue!;
+                              _servidorEchoController.text = newValue;
+                            });
+                          },
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'Publica',
+                              child: Text('En via pública'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Dependencia',
+                              child: Text('En la dependencia'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Particular',
+                              child: Text('En un particular'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Casa',
+                              child: Text('En el domicilio particular'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Select',
+                              child: Text('Lugar del echo'),
+                            ),
+                          ],
+                          validator: (value) {
+                            if (value == null ||
+                                value == 'Select' ||
+                                value.isEmpty) {
+                              return 'Por favor selecciona el lugar del hecho';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 1,
+                        child: TextFormField(
+                          controller: _servidorDistritoController,
+                          //poner el teclado en numerico
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Distrito',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if ((value == null || value.isEmpty)) {
+                              return '';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: _servidorDireccionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Dirección del hecho',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length <= 3) {
+                        return 'Por favor ingresa la dirección del hecho';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: _servidorDireccionCallesController,
+                    decoration: const InputDecoration(
+                      labelText: 'Entre calles',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if ((value == null || value.isEmpty) ||
+                          value.length <= 3) {
+                        return 'Porfavor ingresa entre que calles';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: _servidorColoniaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Colonia',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length <= 1) {
+                        return 'Por favor ingresa la colonia';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  FileUploadSection(
+                    key: _uploaderKey,
+                    onUrlsObtenidas: (urls) {
+                      _urlsEvidencias = urls;
+                    },
+                    onError: (error) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(error)));
+                    },
+                  ),
+
+                  TextButton(
+                    onPressed: () async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2026),
+                      );
+
+                      if (selectedDate != null && selectedDate is DateTime) {
+                        // Aquí la comparación con DateTime ahora debería funcionar
+                        setState(() {
+                          if (selectedDate.isBefore(DateTime.now()) ||
+                              selectedDate.isAtSameMomentAs(DateTime.now())) {
+                            visiblefecha = true;
+                            fechaSeleccionada = DateFormat(
+                              'd/M/yyyy',
+                            ).format(selectedDate);
+                            _servidorFechaOcurridoController.text =
+                                fechaSeleccionada;
+                            colorFecha = Colors.black;
+                          } else {
+                            colorFecha = const Color.fromARGB(255, 212, 47, 47);
+                            visiblefecha = false;
+                            _servidorFechaOcurridoController.text = '';
+                            fechaSeleccionada = '';
+                          }
+                        });
+                      } else {
+                        setState(() {
+                          visiblefecha = false;
+                        });
+                      }
+                    },
+                    child: const Text('Selecciona la fecha del hecho'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorFecha,
+                      textStyle: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+
+                  Visibility(
+                    visible: visiblefecha,
+                    child: Text(
+                      "$fechaSeleccionada",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: _servidorMotivoController,
+                    decoration: const InputDecoration(
+                      labelText: 'Señale el motivo y narre los hechos',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          (value.length < 2 || value.length > 150)) {
+                        return 'Por favor ingresa el motivo y narra los hechos';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  CheckboxListTile(
+                    // shape: ShapeBorder.colored(
+                    //   side: const BorderSide(color: Colors.white, width: 2.0),
+                    //   shape: RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.circular(4.0),
+                    //   ),
+                    // ),
+                    title: Text(
+                      'Términos y condiciones',
+                      style: TextStyle(color: colorterminos),
+                    ),
+
+                    value: TerminosyCondicionesValue,
+                    tileColor: Colors.white,
+                    activeColor: const Color.fromARGB(255, 124, 36, 57),
+                    checkColor: Colors.white,
+
+                    //color de texto
+                    onChanged: (bool? value) {
+                      setState(() {
+                        TerminosyCondicionesValue = value ?? false;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TermsAndConditionsScreen(),
                           ),
                         );
+                        colorterminos = Colors.black;
+                      });
+                    },
+                    controlAffinity:
+                        ListTileControlAffinity
+                            .leading, // Coloca la casilla a la izquierda
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Resetear colores
                         setState(() {
-                          _isCargando = false;
+                          colorFecha = Colors.black;
+                          colorterminos = Colors.black;
                         });
-                        return;
-                      }
+                        setState(() {
+                          _isCargando = true;
+                        });
 
-                      final idDenuncia = await _guardarDenuncia();
+                        // Validar campos requeridos
+                        bool hasErrors = false;
 
-                      setState(() {
-                        _isCargando = true;
-                        cargandoText = 'Guardando evidencias...';
-                      });
+                        if (!TerminosyCondicionesValue) {
+                          setState(() {
+                            cargandoText =
+                                'Por favor acepta los términos y condiciones';
+                            Duration(seconds: 2);
+                            colorterminos = const Color.fromARGB(
+                              255,
+                              212,
+                              47,
+                              47,
+                            );
+                            hasErrors = true;
+                            _isCargando = false;
+                          });
+                        }
 
-                      // guardar id de denuncia en el uploader
-                      await _uploaderKey.currentState!.guardarEvidenciasLocales(
-                        idDenuncia,
-                        _urlsEvidencias,
-                      );
+                        if (visiblefecha == false) {
+                          // Asegúrate que esta lógica es necesaria
+                          setState(() {
+                            cargandoText =
+                                'Por favor selecciona una fecha válida';
+                            Duration(seconds: 2);
+                            colorFecha = const Color.fromARGB(255, 212, 47, 47);
+                            hasErrors = true;
+                            _isCargando = false;
+                          });
+                        }
 
-                      await DatabaseHelper().database;
-                      // Esperar un breve momento para asegurar que todo se guardó
+                        setState(() {
+                          cargandoText = 'Guardando denuncia...';
+                          // comprobar datos si estan vacios del usuario se registren como anonimos
+                          if (anonimoValue) {
+                            _nombreController.text = 'Anónimo';
+                            _apellidosController.text = 'Anónimo';
+                            _telefonoController.text = 'Anónimo';
+                            _correoController.text = 'Anónimo';
+                            _direccionController.text = 'Anónimo';
+                            _direccionNumeroController.text = 'Anónimo';
+                            _coloniaController.text = 'Anónimo';
+                            _edadController.text = 'Anónimo';
+                            _sexoController.text = 'Anónimo';
+                            _ocupacionController.text = 'Anónimo';
+                            _nacionalidadController.text = 'Anónimo';
+                          } else {
+                            _nombreController.text =
+                                _nombreController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _nombreController.text;
+                            _apellidosController.text =
+                                _apellidosController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _apellidosController.text;
+                            _telefonoController.text =
+                                _telefonoController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _telefonoController.text;
+                            _correoController.text =
+                                _correoController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _correoController.text;
+                            _direccionController.text =
+                                _direccionController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _direccionController.text;
+                            _direccionNumeroController.text =
+                                _direccionNumeroController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _direccionNumeroController.text;
+                            _coloniaController.text =
+                                _coloniaController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _coloniaController.text;
+                            _edadController.text =
+                                _edadController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _edadController.text;
+                            _sexoController.text =
+                                _sexoController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _sexoController.text;
+                            _ocupacionController.text =
+                                _ocupacionController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _ocupacionController.text;
+                            _nacionalidadController.text =
+                                _nacionalidadController.text.trim().isEmpty
+                                    ? 'Anónimo'
+                                    : _nacionalidadController.text;
+                          }
+                        });
 
-                      setState(() {
-                        _isCargando = true;
-                        cargandoText = 'Denuncia guardada con éxito';
-                      });
-                      await Future.delayed(const Duration(milliseconds: 500));
-                      final denuncia = _crearDenuncia()..id = idDenuncia;
+                        // Validar formulario y guardar
+                        if (_formkey.currentState!.validate() && !hasErrors) {
+                          setState(() {
+                            _isCargando = true;
+                            cargandoText = 'Subiendo archivos...';
+                          });
+                          try {
+                            // Guardar en base de datos y guardar id de denuncia
+                            final archivosSubidos = await _uploaderKey
+                                .currentState!
+                                .subirArchivos('REF-123');
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Guardando denuncia...'),
-                          duration: Duration(seconds: 2),
+                            if (!archivosSubidos) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Error al subir archivos'),
+                                ),
+                              );
+                              setState(() {
+                                _isCargando = false;
+                              });
+                              return;
+                            }
+
+                            final idDenuncia = await _guardarDenuncia();
+
+                            setState(() {
+                              _isCargando = true;
+                              cargandoText = 'Guardando evidencias...';
+                            });
+
+                            // guardar id de denuncia en el uploader
+                            await _uploaderKey.currentState!
+                                .guardarEvidenciasLocales(
+                                  idDenuncia,
+                                  _urlsEvidencias,
+                                );
+
+                            await DatabaseHelper().database;
+                            // Esperar un breve momento para asegurar que todo se guardó
+
+                            setState(() {
+                              _isCargando = true;
+                              cargandoText = 'Denuncia guardada con éxito';
+                            });
+                            await Future.delayed(
+                              const Duration(milliseconds: 500),
+                            );
+                            final denuncia = _crearDenuncia()..id = idDenuncia;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Guardando denuncia...'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        guardadoExitoso(denuncia: denuncia),
+                              ),
+                            );
+
+                            setState(() {
+                              _isCargando = false;
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error al guardar: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            setState(() {
+                              _isCargando = false;
+                            });
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Por favor completa todos los campos requeridos',
+                              ),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                          setState(() {
+                            _isCargando = false;
+                          });
+                        }
+                      },
+                      child: const Text('Registrar Denuncia'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 124, 36, 57),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
                         ),
-                      );
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => guardadoExitoso(denuncia: denuncia),
-                        ),
-                      );
-
-                      setState(() {
-                        _isCargando = false;
-                      });
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error al guardar: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      setState(() {
-                        _isCargando = false;
-                      });
-                    }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Por favor completa todos los campos requeridos',
-                        ),
-                        backgroundColor: Colors.orange,
+                        //color de texto
+                        foregroundColor: Colors.white,
+                        //textStyle: const TextStyle(fontSize: 20, color: Colors.white),
                       ),
-                    );
-                    setState(() {
-                      _isCargando = false;
-                    });
-                  }
-                } catch (e) {
-                  setState(() {
-                    _isCargando = false;
-                  });
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                } finally {
-                  setState(() => _isCargando = false);
-                }
-              },
-              child: const Text('Registrar Denuncia'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 124, 36, 57),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-                //color de texto
-                foregroundColor: Colors.white,
-                //textStyle: const TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-
-          const SizedBox(height: 20),
-        ],
+            if (_isCargando)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(
+                          cargandoText,
+                          style: const TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       );
-    } else {
-      stepContent = Container();
     }
+    ;
 
-    return Stack(children: [SingleChildScrollView(child: stepContent)]);
+    return Container(); // fallback
   }
 
   @override
@@ -2026,9 +2047,6 @@ class FormDenunciaState extends State<FormDenuncia> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              if (_isCargando) {
-                return; // No permitir retroceso si está cargando
-              }
               if (_currentStep > 0) {
                 _currentStep--; // Disminuye el paso actual
               } else if (_currentStep == 0) {
@@ -2040,43 +2058,20 @@ class FormDenunciaState extends State<FormDenuncia> {
         elevation: 0, // Quita sombra para que el gradiente se vea limpio
         flexibleSpace: Container(),
       ),
-      body: Stack(
-        children: [
-          Container(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formkey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [_buildStep()],
-                  ),
-                ),
+      body: Container(
+        color: Colors.white,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formkey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [_buildStep()],
               ),
             ),
           ),
-          if (_isCargando)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(height: 24),
-                      Text(
-                        cargandoText,
-                        style: TextStyle(color: Colors.white, fontSize: 24),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

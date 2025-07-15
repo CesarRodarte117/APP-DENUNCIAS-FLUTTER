@@ -853,7 +853,6 @@ class FormDenunciaState extends State<FormDenuncia> {
 
   bool visiblefechamensaje = false;
   String fechamensaje = '';
-  Color colorfechaBorde = Colors.transparent;
 
   // 2. Método para crear objeto Denuncia
   Denuncia _crearDenuncia() {
@@ -1688,9 +1687,9 @@ class FormDenunciaState extends State<FormDenuncia> {
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26), // Bordes redondeados
+                borderRadius: BorderRadius.circular(8), // Bordes redondeados
                 side: BorderSide(
-                  color: colorfechaBorde, // Color del borde
+                  color: colorFecha, // Color del borde
                   width: 1.0, // Grosor del borde
                 ),
               ),
@@ -1798,7 +1797,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   setState(() {
                     colorFecha = Colors.black;
                     colorterminos = Colors.black;
-                    colorfechaBorde = Colors.transparent;
                   });
                   print('Cambiando _isCargando a: $_isCargando');
                   // Validar campos requeridos

@@ -789,7 +789,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
 
 // Esta clase representa el estado del formulario de denuncia
 class FormDenunciaState extends State<FormDenuncia> {
-  // Removed duplicate declaration of _isCargando
   final _formkey = GlobalKey<FormState>();
   String dropdownValue = 'Select';
   String civilStatusValue = 'Select';
@@ -849,11 +848,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   final TextEditingController _horaController = TextEditingController();
 
   bool _isCargando = false;
-  String cargandoText = 'Cargando...';
-
-  bool visiblefechamensaje = false;
-  String fechamensaje = '';
-  Color colorfechaBorde = Colors.transparent;
 
   // 2. Método para crear objeto Denuncia
   Denuncia _crearDenuncia() {
@@ -908,10 +902,8 @@ class FormDenunciaState extends State<FormDenuncia> {
 
   // formulario
   Widget _buildStep() {
-    // Contenido principal según el paso actual
-    Widget stepContent;
     if (_currentStep == 0) {
-      stepContent = Column(
+      return Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -1203,7 +1195,7 @@ class FormDenunciaState extends State<FormDenuncia> {
         ],
       );
     } else if (_currentStep == 1) {
-      stepContent = Column(
+      return Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -1646,7 +1638,20 @@ class FormDenunciaState extends State<FormDenuncia> {
             },
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
+
+          FileUploadSection(
+            key: _uploaderKey,
+            onUrlsObtenidas: (urls) {
+              _urlsEvidencias = urls;
+            },
+            onError: (error) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(error)));
+            },
+          ),
+
+          TextButton(
             onPressed: () async {
               final selectedDate = await showDatePicker(
                 context: context,
@@ -1661,7 +1666,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   if (selectedDate.isBefore(DateTime.now()) ||
                       selectedDate.isAtSameMomentAs(DateTime.now())) {
                     visiblefecha = true;
-                    visiblefechamensaje = false;
                     fechaSeleccionada = DateFormat(
                       'd/M/yyyy',
                     ).format(selectedDate);
@@ -1670,8 +1674,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   } else {
                     colorFecha = const Color.fromARGB(255, 212, 47, 47);
                     visiblefecha = false;
-                    visiblefechamensaje = true;
-                    fechamensaje = 'La fecha no puede ser mayor a la actual';
                     _servidorFechaOcurridoController.text = '';
                     fechaSeleccionada = '';
                   }
@@ -1679,35 +1681,16 @@ class FormDenunciaState extends State<FormDenuncia> {
               } else {
                 setState(() {
                   visiblefecha = false;
-                  visiblefechamensaje = true;
-                  fechamensaje = 'No se seleccionó una fecha válida';
                 });
               }
             },
-            child: Text('SELECCIONAR FECHA DE OCURRENCIA'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26), // Bordes redondeados
-                side: BorderSide(
-                  color: colorfechaBorde, // Color del borde
-                  width: 1.0, // Grosor del borde
-                ),
-              ),
+            child: const Text('Selecciona la fecha del hecho'),
+            style: TextButton.styleFrom(
+              foregroundColor: colorFecha,
+              textStyle: const TextStyle(fontSize: 16),
             ),
           ),
-          const SizedBox(height: 16),
-          Visibility(
-            visible: visiblefechamensaje,
-            child: Text(
-              "$fechamensaje",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
+
           Visibility(
             visible: visiblefecha,
             child: Text(
@@ -1715,21 +1698,6 @@ class FormDenunciaState extends State<FormDenuncia> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
-
-          const SizedBox(height: 16),
-
-          FileUploadSection(
-            key: _uploaderKey,
-            onUrlsObtenidas: (urls) {
-              _urlsEvidencias = urls;
-            },
-            onError: (error) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(error)));
-            },
-          ),
-
           const SizedBox(height: 16),
 
           TextFormField(
@@ -1741,7 +1709,7 @@ class FormDenunciaState extends State<FormDenuncia> {
             validator: (value) {
               if (value == null ||
                   value.isEmpty ||
-                  (value.length < 2 || value.length > 150)) {
+                  (value.length < 6 || value.length > 150)) {
                 return 'Por favor ingresa el motivo y narra los hechos';
               }
               return null;
@@ -1783,208 +1751,176 @@ class FormDenunciaState extends State<FormDenuncia> {
                 ListTileControlAffinity
                     .leading, // Coloca la casilla a la izquierda
           ),
+          if (_isCargando)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(child: CircularProgressIndicator()),
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: ElevatedButton(
               onPressed: () async {
-                try {
-                  await Future.delayed(Duration.zero);
+                // Resetear colores
+                setState(() {
+                  colorFecha = Colors.black;
+                  colorterminos = Colors.black;
+                });
+
+                // Validar campos requeridos
+                bool hasErrors = false;
+
+                if (!TerminosyCondicionesValue) {
+                  setState(() {
+                    colorterminos = const Color.fromARGB(255, 212, 47, 47);
+                    hasErrors = true;
+                  });
+                }
+
+                if (visiblefecha == false) {
+                  // Asegúrate que esta lógica es necesaria
+                  setState(() {
+                    colorFecha = const Color.fromARGB(255, 212, 47, 47);
+                    hasErrors = true;
+                  });
+                }
+
+                setState(() {
+                  // comprobar datos si estan vacios del usuario se registren como anonimos
+                  if (anonimoValue) {
+                    _nombreController.text = 'Anónimo';
+                    _apellidosController.text = 'Anónimo';
+                    _telefonoController.text = 'Anónimo';
+                    _correoController.text = 'Anónimo';
+                    _direccionController.text = 'Anónimo';
+                    _direccionNumeroController.text = 'Anónimo';
+                    _coloniaController.text = 'Anónimo';
+                    _edadController.text = 'Anónimo';
+                    _sexoController.text = 'Anónimo';
+                    _ocupacionController.text = 'Anónimo';
+                    _nacionalidadController.text = 'Anónimo';
+                  } else {
+                    _nombreController.text =
+                        _nombreController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _nombreController.text;
+                    _apellidosController.text =
+                        _apellidosController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _apellidosController.text;
+                    _telefonoController.text =
+                        _telefonoController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _telefonoController.text;
+                    _correoController.text =
+                        _correoController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _correoController.text;
+                    _direccionController.text =
+                        _direccionController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _direccionController.text;
+                    _direccionNumeroController.text =
+                        _direccionNumeroController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _direccionNumeroController.text;
+                    _coloniaController.text =
+                        _coloniaController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _coloniaController.text;
+                    _edadController.text =
+                        _edadController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _edadController.text;
+                    _sexoController.text =
+                        _sexoController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _sexoController.text;
+                    _ocupacionController.text =
+                        _ocupacionController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _ocupacionController.text;
+                    _nacionalidadController.text =
+                        _nacionalidadController.text.trim().isEmpty
+                            ? 'Anónimo'
+                            : _nacionalidadController.text;
+                  }
+                });
+
+                // Validar formulario y guardar
+                if (_formkey.currentState!.validate() && !hasErrors) {
                   setState(() {
                     _isCargando = true;
-                    cargandoText = 'Validando datos...';
                   });
-                  await Future.delayed(Duration.zero);
-                  // Resetear colores
-                  setState(() {
-                    colorFecha = Colors.black;
-                    colorterminos = Colors.black;
-                    colorfechaBorde = Colors.transparent;
-                  });
-                  print('Cambiando _isCargando a: $_isCargando');
-                  // Validar campos requeridos
-                  bool hasErrors = false;
+                  try {
+                    // Guardar en base de datos y guardar id de denuncia
 
-                  if (!TerminosyCondicionesValue) {
-                    setState(() {
-                      cargandoText =
-                          'Por favor acepta los términos y condiciones';
-                      Duration(seconds: 2);
-                      colorterminos = const Color.fromARGB(255, 212, 47, 47);
-                      hasErrors = true;
-                      _isCargando = false;
-                    });
-                  }
+                    final archivosSubidos = await _uploaderKey.currentState!
+                        .subirArchivos('REF-123');
 
-                  if (visiblefecha == false) {
-                    setState(() {
-                      visiblefechamensaje = true;
-                      fechamensaje = 'Por favor selecciona una fecha';
-                      cargandoText = 'Por favor selecciona una fecha';
-                      Duration(seconds: 2);
-                      colorFecha = const Color.fromARGB(255, 212, 47, 47);
-                      hasErrors = true;
-                      _isCargando = false;
-                    });
-                  }
-                  setState(() {
-                    cargandoText = 'Guardando denuncia...';
-                    // comprobar datos si estan vacios del usuario se registren como anonimos
-                    if (anonimoValue) {
-                      _nombreController.text = 'Anónimo';
-                      _apellidosController.text = 'Anónimo';
-                      _telefonoController.text = 'Anónimo';
-                      _correoController.text = 'Anónimo';
-                      _direccionController.text = 'Anónimo';
-                      _direccionNumeroController.text = 'Anónimo';
-                      _coloniaController.text = 'Anónimo';
-                      _edadController.text = 'Anónimo';
-                      _sexoController.text = 'Anónimo';
-                      _ocupacionController.text = 'Anónimo';
-                      _nacionalidadController.text = 'Anónimo';
-                    } else {
-                      _nombreController.text =
-                          _nombreController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _nombreController.text;
-                      _apellidosController.text =
-                          _apellidosController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _apellidosController.text;
-                      _telefonoController.text =
-                          _telefonoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _telefonoController.text;
-                      _correoController.text =
-                          _correoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _correoController.text;
-                      _direccionController.text =
-                          _direccionController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _direccionController.text;
-                      _direccionNumeroController.text =
-                          _direccionNumeroController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _direccionNumeroController.text;
-                      _coloniaController.text =
-                          _coloniaController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _coloniaController.text;
-                      _edadController.text =
-                          _edadController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _edadController.text;
-                      _sexoController.text =
-                          _sexoController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _sexoController.text;
-                      _ocupacionController.text =
-                          _ocupacionController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _ocupacionController.text;
-                      _nacionalidadController.text =
-                          _nacionalidadController.text.trim().isEmpty
-                              ? 'Anónimo'
-                              : _nacionalidadController.text;
-                    }
-                  });
-
-                  // Validar formulario y guardar
-                  if (_formkey.currentState!.validate() && !hasErrors) {
-                    setState(() {
-                      _isCargando = true;
-                      cargandoText = 'Subiendo archivos...';
-                    });
-                    try {
-                      // Guardar en base de datos y guardar id de denuncia
-                      final archivosSubidos = await _uploaderKey.currentState!
-                          .subirArchivos('REF-123');
-
-                      if (!archivosSubidos) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Error al subir archivos'),
-                          ),
-                        );
-                        setState(() {
-                          _isCargando = false;
-                        });
-                        return;
-                      }
-
-                      final idDenuncia = await _guardarDenuncia();
-
-                      setState(() {
-                        _isCargando = true;
-                        cargandoText = 'Guardando evidencias...';
-                      });
-
-                      // guardar id de denuncia en el uploader
-                      await _uploaderKey.currentState!.guardarEvidenciasLocales(
-                        idDenuncia,
-                        _urlsEvidencias,
-                      );
-
-                      await DatabaseHelper().database;
-                      // Esperar un breve momento para asegurar que todo se guardó
-
-                      setState(() {
-                        _isCargando = true;
-                        cargandoText = 'Denuncia guardada con éxito';
-                      });
-                      await Future.delayed(const Duration(milliseconds: 500));
-                      final denuncia = _crearDenuncia()..id = idDenuncia;
-
+                    if (!archivosSubidos) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Guardando denuncia...'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => guardadoExitoso(denuncia: denuncia),
-                        ),
-                      );
-
-                      setState(() {
-                        _isCargando = false;
-                      });
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error al guardar: $e'),
-                          backgroundColor: Colors.red,
+                          content: Text('Error al subir archivos'),
                         ),
                       );
                       setState(() {
                         _isCargando = false;
                       });
+                      return;
                     }
-                  } else {
+
+                    final idDenuncia = await _guardarDenuncia();
+
+                    // guardar id de denuncia en el uploader
+                    await _uploaderKey.currentState!.guardarEvidenciasLocales(
+                      idDenuncia,
+                      _urlsEvidencias,
+                    );
+
+                    await DatabaseHelper().database;
+                    // Esperar un breve momento para asegurar que todo se guardó
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    final denuncia = _crearDenuncia()..id = idDenuncia;
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                          'Por favor completa todos los campos requeridos',
-                        ),
-                        backgroundColor: Colors.orange,
+                        content: Text('Guardando denuncia...'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => guardadoExitoso(denuncia: denuncia),
+                      ),
+                                          setState(() {
+                      _isCargando = false;
+                    });
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error al guardar: $e'),
+                        backgroundColor: Colors.red,
                       ),
                     );
                     setState(() {
                       _isCargando = false;
                     });
                   }
-                } catch (e) {
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Por favor completa todos los campos requeridos',
+                      ),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
                   setState(() {
                     _isCargando = false;
                   });
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                } finally {
-                  setState(() => _isCargando = false);
                 }
               },
               child: const Text('Registrar Denuncia'),
@@ -2004,11 +1940,9 @@ class FormDenunciaState extends State<FormDenuncia> {
           const SizedBox(height: 20),
         ],
       );
-    } else {
-      stepContent = Container();
     }
 
-    return Stack(children: [SingleChildScrollView(child: stepContent)]);
+    return Container(); // fallback
   }
 
   @override
@@ -2026,9 +1960,6 @@ class FormDenunciaState extends State<FormDenuncia> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              if (_isCargando) {
-                return; // No permitir retroceso si está cargando
-              }
               if (_currentStep > 0) {
                 _currentStep--; // Disminuye el paso actual
               } else if (_currentStep == 0) {
@@ -2040,43 +1971,20 @@ class FormDenunciaState extends State<FormDenuncia> {
         elevation: 0, // Quita sombra para que el gradiente se vea limpio
         flexibleSpace: Container(),
       ),
-      body: Stack(
-        children: [
-          Container(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formkey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [_buildStep()],
-                  ),
-                ),
+      body: Container(
+        color: Colors.white,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formkey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [_buildStep()],
               ),
             ),
           ),
-          if (_isCargando)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(height: 24),
-                      Text(
-                        cargandoText,
-                        style: TextStyle(color: Colors.white, fontSize: 24),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

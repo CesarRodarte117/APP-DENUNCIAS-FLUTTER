@@ -851,10 +851,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   bool _isCargando = false;
   String cargandoText = 'Cargando...';
 
-  bool visiblefechamensaje = false;
-  String fechamensaje = '';
-  Color colorfechaBorde = Colors.transparent;
-
   // 2. Método para crear objeto Denuncia
   Denuncia _crearDenuncia() {
     return Denuncia(
@@ -1646,7 +1642,20 @@ class FormDenunciaState extends State<FormDenuncia> {
             },
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
+
+          FileUploadSection(
+            key: _uploaderKey,
+            onUrlsObtenidas: (urls) {
+              _urlsEvidencias = urls;
+            },
+            onError: (error) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(error)));
+            },
+          ),
+
+          TextButton(
             onPressed: () async {
               final selectedDate = await showDatePicker(
                 context: context,
@@ -1661,7 +1670,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   if (selectedDate.isBefore(DateTime.now()) ||
                       selectedDate.isAtSameMomentAs(DateTime.now())) {
                     visiblefecha = true;
-                    visiblefechamensaje = false;
                     fechaSeleccionada = DateFormat(
                       'd/M/yyyy',
                     ).format(selectedDate);
@@ -1670,8 +1678,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   } else {
                     colorFecha = const Color.fromARGB(255, 212, 47, 47);
                     visiblefecha = false;
-                    visiblefechamensaje = true;
-                    fechamensaje = 'La fecha no puede ser mayor a la actual';
                     _servidorFechaOcurridoController.text = '';
                     fechaSeleccionada = '';
                   }
@@ -1679,35 +1685,16 @@ class FormDenunciaState extends State<FormDenuncia> {
               } else {
                 setState(() {
                   visiblefecha = false;
-                  visiblefechamensaje = true;
-                  fechamensaje = 'No se seleccionó una fecha válida';
                 });
               }
             },
-            child: Text('SELECCIONAR FECHA DE OCURRENCIA'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26), // Bordes redondeados
-                side: BorderSide(
-                  color: colorfechaBorde, // Color del borde
-                  width: 1.0, // Grosor del borde
-                ),
-              ),
+            child: const Text('Selecciona la fecha del hecho'),
+            style: TextButton.styleFrom(
+              foregroundColor: colorFecha,
+              textStyle: const TextStyle(fontSize: 16),
             ),
           ),
-          const SizedBox(height: 16),
-          Visibility(
-            visible: visiblefechamensaje,
-            child: Text(
-              "$fechamensaje",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
+
           Visibility(
             visible: visiblefecha,
             child: Text(
@@ -1715,21 +1702,6 @@ class FormDenunciaState extends State<FormDenuncia> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
-
-          const SizedBox(height: 16),
-
-          FileUploadSection(
-            key: _uploaderKey,
-            onUrlsObtenidas: (urls) {
-              _urlsEvidencias = urls;
-            },
-            onError: (error) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(error)));
-            },
-          ),
-
           const SizedBox(height: 16),
 
           TextFormField(
@@ -1798,7 +1770,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                   setState(() {
                     colorFecha = Colors.black;
                     colorterminos = Colors.black;
-                    colorfechaBorde = Colors.transparent;
                   });
                   print('Cambiando _isCargando a: $_isCargando');
                   // Validar campos requeridos
@@ -1817,9 +1788,7 @@ class FormDenunciaState extends State<FormDenuncia> {
 
                   if (visiblefecha == false) {
                     setState(() {
-                      visiblefechamensaje = true;
-                      fechamensaje = 'Por favor selecciona una fecha';
-                      cargandoText = 'Por favor selecciona una fecha';
+                      cargandoText = 'Por favor selecciona una fecha válida';
                       Duration(seconds: 2);
                       colorFecha = const Color.fromARGB(255, 212, 47, 47);
                       hasErrors = true;
@@ -1984,7 +1953,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                     context,
                   ).showSnackBar(SnackBar(content: Text('Error: $e')));
                 } finally {
-                  setState(() => _isCargando = false);
+                  setState(
+                    () => _isCargando = false,
+                  ); // OJO: Esto podría ocultar la carga prematuramente
                 }
               },
               child: const Text('Registrar Denuncia'),
@@ -2026,9 +1997,6 @@ class FormDenunciaState extends State<FormDenuncia> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             setState(() {
-              if (_isCargando) {
-                return; // No permitir retroceso si está cargando
-              }
               if (_currentStep > 0) {
                 _currentStep--; // Disminuye el paso actual
               } else if (_currentStep == 0) {
@@ -2065,11 +2033,11 @@ class FormDenunciaState extends State<FormDenuncia> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(height: 24),
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
                       Text(
                         cargandoText,
-                        style: TextStyle(color: Colors.white, fontSize: 24),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ],
                   ),

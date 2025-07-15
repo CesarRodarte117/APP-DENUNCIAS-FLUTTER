@@ -1688,7 +1688,7 @@ class FormDenunciaState extends State<FormDenuncia> {
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26), // Bordes redondeados
+                borderRadius: BorderRadius.circular(8), // Bordes redondeados
                 side: BorderSide(
                   color: colorfechaBorde, // Color del borde
                   width: 1.0, // Grosor del borde
