@@ -11,7 +11,7 @@ import 'package:denuncia/models/db.dart';
 
 class FileUploadSection extends StatefulWidget {
   final Function(List<String>) onUrlsObtenidas;
-  final void Function(List<File>)? onSelectionChanged;
+  final void Function(List<File>)? onSelectionChanged; // <- nuevo
   final Function(String) onError;
   final int maxArchivos;
   final int idDenuncia;
@@ -132,12 +132,12 @@ class FileUploadSectionState extends State<FileUploadSection> {
         final nombreUnico =
             'denuncia_${denunciaId}_${DateTime.now().millisecondsSinceEpoch}_${path.basename(archivo.path)}';
         final localPath = path.join(directory.path, nombreUnico);
-        // Copiar el archivo (esperar explícitamente)
+        // 1. Copiar el archivo (esperar explícitamente)
         await archivo.copy(localPath);
 
-        // Forzar sincronización del sistema de archivos
+        // 2. Forzar sincronización del sistema de archivos (MÉTODO MEJORADO)
         final file = File(localPath);
-        await file.exists();
+        await file.exists(); // Verificación básica
         await file.readAsBytes().then(
           (bytes) => file.writeAsBytes(bytes),
         ); // Forzar refresco
@@ -246,6 +246,43 @@ class FileUploadSectionState extends State<FileUploadSection> {
     }
   }
 
+  // eliminar evidencia
+  static Future<bool> eliminarEvidenciaServidor(String urlEvidencia) async {
+    const String baseUrl = 'apps.juarez.gob.mx';
+    const String path = '/ws_cdenuncia/ws02/eliminar_evidencia.json';
+
+    // La 'referencia' es la URL única de la evidencia que quieres borrar.
+    final url = Uri.https(baseUrl, path, {'referencia': urlEvidencia});
+
+    print('🗑️ Intentando eliminar evidencia del servidor: $urlEvidencia');
+
+    try {
+      // Es un verbo GET, como especificaste
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['resultado'] == 'Exito') {
+          print('✅ Evidencia eliminada del servidor exitosamente.');
+          return true;
+        } else {
+          print(
+            '⚠️ El servidor respondió, pero no se pudo eliminar: ${data['mensaje']}',
+          );
+          return false;
+        }
+      } else {
+        print(
+          '❌ Error de servidor al intentar eliminar: ${response.statusCode}',
+        );
+        return false;
+      }
+    } catch (e) {
+      print('❌ Excepción al eliminar evidencia del servidor: $e');
+      return false;
+    }
+  }
+
   void _eliminarArchivo(int index) {
     setState(() {
       final fileKey = path.basename(_archivosSeleccionados[index].path);
@@ -286,7 +323,7 @@ class FileUploadSectionState extends State<FileUploadSection> {
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 48),
           ),
-          child: const Text('* Seleccionar archivos'),
+          child: const Text('SELECCIONAR ARCHIVOS'),
         ),
         const SizedBox(height: 16),
         if (_archivosSeleccionados.isNotEmpty) ...[

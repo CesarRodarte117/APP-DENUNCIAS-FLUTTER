@@ -164,22 +164,4 @@ class DatabaseHelper {
       );
     }
   }
-
-  Future<void> eliminarDenuncia(int id) async {
-    final db = await database;
-    await db.delete('denuncia', where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<List<Denuncia>> getDenunciasPendientes() async {
-    final db = await database;
-    // Buscamos todas las denuncias donde la clave sea NULL o una cadena vacía.
-    final List<Map<String, dynamic>> maps = await db.query(
-      'denuncia',
-      where: 'clave IS NULL OR clave = ?',
-      whereArgs: ['null'],
-    );
-
-    print('ℹ️ Se encontraron ${maps.length} denuncias pendientes de subir.');
-    return List.generate(maps.length, (i) => Denuncia.fromMap(maps[i]));
-  }
 }

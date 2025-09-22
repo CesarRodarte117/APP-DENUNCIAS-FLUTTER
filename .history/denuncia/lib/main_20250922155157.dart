@@ -64,6 +64,8 @@ class FormDenuncia extends StatefulWidget {
   }
 }
 
+// Removed duplicate StatefulWidget definition of guardadoExitoso
+
 class guardadoExitoso extends StatelessWidget {
   final Denuncia denuncia;
 
@@ -72,10 +74,14 @@ class guardadoExitoso extends StatelessWidget {
   final Color primaryColor = const Color.fromARGB(255, 124, 36, 57);
 
   String _formatearFechaCorta(String fechaCompleta) {
+    // Usamos un bloque try-catch por si alguna vez la fecha viene en un formato inesperado.
     try {
+      // 1. Convierte el texto en un objeto DateTime.
       final DateTime fechaObjeto = DateTime.parse(fechaCompleta);
+      // 2. Formatea ese objeto para mostrar solo año, mes y día.
       return DateFormat('yyyy-MM-dd').format(fechaObjeto);
     } catch (e) {
+      // Si hay un error, intentamos devolver la primera parte del texto antes del espacio.
       return fechaCompleta.split(' ')[0];
     }
   }
@@ -550,17 +556,17 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
       List<Denuncia> denunciasPendientes =
           await dbHelper.getDenunciasPendientes();
 
-      // Si encontramos denuncias pendientes, intentamos subirlas una por una.
+      // 2. Si encontramos pendientes, intentamos subirlas una por una.
       if (denunciasPendientes.isNotEmpty) {
         print(
           '🔄 Intentando subir ${denunciasPendientes.length} denuncias pendientes...',
         );
         for (var denunciaPendiente in denunciasPendientes) {
-          // Llamamos a la API para subir la denuncia.
+          // 3. Llamamos a la API para subir la denuncia.
           bool seSubio = await ApiService.subirDenuncia(denunciaPendiente);
 
-          //  Si se subió con éxito, la API le asigna la clave.
-          //  Ahora actualizamos el registro local con la nueva clave.
+          // 4. Si se subió con éxito, la API le asigna la clave.
+          //    Ahora actualizamos el registro local con la nueva clave.
           if (seSubio) {
             print(
               '✅ Denuncia pendiente subida. Actualizando registro local ID: ${denunciaPendiente.id}',
@@ -593,12 +599,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
         print("ℹ️ No se recibieron actualizaciones de la API.");
       }
 
-      //  obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
+      // 4. Finalmente, obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
       // y las retornamos para que el FutureBuilder las muestre.
       print("📚 Cargando denuncias desde la base de datos local para mostrar.");
       return DatabaseHelper().getAllDenuncias();
     } catch (e) {
       print("❌ Ocurrió un error en el proceso de carga y actualización: $e");
+      // Si algo falla, intentamos cargar los datos locales de todas formas
+      // o puedes manejar el error de otra manera.
       return DatabaseHelper().getAllDenuncias();
     }
   }
@@ -679,10 +687,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
   }
 
   String _formatearFechaCorta(String fechaCompleta) {
+    // Usamos un bloque try-catch por si alguna vez la fecha viene en un formato inesperado.
     try {
+      // 1. Convierte el texto en un objeto DateTime.
       final DateTime fechaObjeto = DateTime.parse(fechaCompleta);
+      // 2. Formatea ese objeto para mostrar solo año, mes y día.
       return DateFormat('yyyy-MM-dd').format(fechaObjeto);
     } catch (e) {
+      // Si hay un error, intentamos devolver la primera parte del texto antes del espacio.
       return fechaCompleta.split(' ')[0];
     }
   }

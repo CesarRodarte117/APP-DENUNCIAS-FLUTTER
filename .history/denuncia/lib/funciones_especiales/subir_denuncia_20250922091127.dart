@@ -2,9 +2,11 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+// Asegúrate de que esta ruta de importación sea correcta y que el archivo denuncia.dart exista.
 import 'package:denuncia/models/denuncia.dart';
 
 // --- CLASE PARA MANEJAR EL RESUMEN DE LA DENUNCIA ---
+// Es buena práctica tener esta clase para manejar los datos de forma segura.
 class DenunciaResumen {
   final String clave;
   final String estatus;
@@ -111,6 +113,7 @@ class ApiService {
     final url = Uri.https(baseUrl, path, {'referencia': urlEvidencia});
 
     try {
+      // Es un verbo GET, como especificaste
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

@@ -11,7 +11,7 @@ import 'package:denuncia/models/db.dart';
 
 class FileUploadSection extends StatefulWidget {
   final Function(List<String>) onUrlsObtenidas;
-  final void Function(List<File>)? onSelectionChanged;
+  final void Function(List<File>)? onSelectionChanged; // <- nuevo
   final Function(String) onError;
   final int maxArchivos;
   final int idDenuncia;
@@ -132,12 +132,12 @@ class FileUploadSectionState extends State<FileUploadSection> {
         final nombreUnico =
             'denuncia_${denunciaId}_${DateTime.now().millisecondsSinceEpoch}_${path.basename(archivo.path)}';
         final localPath = path.join(directory.path, nombreUnico);
-        // Copiar el archivo (esperar explícitamente)
+        // 1. Copiar el archivo (esperar explícitamente)
         await archivo.copy(localPath);
 
-        // Forzar sincronización del sistema de archivos
+        // 2. Forzar sincronización del sistema de archivos (MÉTODO MEJORADO)
         final file = File(localPath);
-        await file.exists();
+        await file.exists(); // Verificación básica
         await file.readAsBytes().then(
           (bytes) => file.writeAsBytes(bytes),
         ); // Forzar refresco

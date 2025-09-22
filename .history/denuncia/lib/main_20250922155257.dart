@@ -593,12 +593,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
         print("ℹ️ No se recibieron actualizaciones de la API.");
       }
 
-      //  obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
+      // 4. Finalmente, obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
       // y las retornamos para que el FutureBuilder las muestre.
       print("📚 Cargando denuncias desde la base de datos local para mostrar.");
       return DatabaseHelper().getAllDenuncias();
     } catch (e) {
       print("❌ Ocurrió un error en el proceso de carga y actualización: $e");
+      // Si algo falla, intentamos cargar los datos locales de todas formas
+      // o puedes manejar el error de otra manera.
       return DatabaseHelper().getAllDenuncias();
     }
   }
@@ -679,10 +681,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
   }
 
   String _formatearFechaCorta(String fechaCompleta) {
+    // Usamos un bloque try-catch por si alguna vez la fecha viene en un formato inesperado.
     try {
+      // 1. Convierte el texto en un objeto DateTime.
       final DateTime fechaObjeto = DateTime.parse(fechaCompleta);
+      // 2. Formatea ese objeto para mostrar solo año, mes y día.
       return DateFormat('yyyy-MM-dd').format(fechaObjeto);
     } catch (e) {
+      // Si hay un error, intentamos devolver la primera parte del texto antes del espacio.
       return fechaCompleta.split(' ')[0];
     }
   }

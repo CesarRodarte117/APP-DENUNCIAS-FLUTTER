@@ -64,21 +64,14 @@ class FormDenuncia extends StatefulWidget {
   }
 }
 
+// Removed duplicate StatefulWidget definition of guardadoExitoso
+
 class guardadoExitoso extends StatelessWidget {
   final Denuncia denuncia;
 
   guardadoExitoso({super.key, required this.denuncia});
 
   final Color primaryColor = const Color.fromARGB(255, 124, 36, 57);
-
-  String _formatearFechaCorta(String fechaCompleta) {
-    try {
-      final DateTime fechaObjeto = DateTime.parse(fechaCompleta);
-      return DateFormat('yyyy-MM-dd').format(fechaObjeto);
-    } catch (e) {
-      return fechaCompleta.split(' ')[0];
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,12 +176,14 @@ class guardadoExitoso extends StatelessWidget {
                     denuncia.servidorDireccionCalles,
                   ),
                   _buildDataRow("Colonia del hecho", denuncia.servidorColonia),
-                  // _buildDataRow("Evidencia", denuncia.servidorEvidencia),
+                  _buildDataRow("Evidencia", denuncia.servidorEvidencia),
                   _buildDataRow("Motivo", denuncia.servidorMotivo),
                   _buildDataRow(
                     "Fecha de lo ocurrido",
                     denuncia.servidorFechaOcurrido,
                   ),
+                  _buildDataRow("Fecha de la denuncia", denuncia.fecha),
+                  _buildDataRow("Hora de la denuncia", denuncia.hora),
                 ],
               ),
             ),
@@ -251,12 +246,8 @@ class guardadoExitoso extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDataRow("Folio", denuncia.clave),
-                  _buildDataRow(
-                    "Fecha de la denuncia",
-                    _formatearFechaCorta(denuncia.fecha),
-                  ),
-                  _buildDataRow("Hora de la denuncia", denuncia.hora),
+                  _buildDataRow("Referencia de denuncia", denuncia.clave),
+                  _buildDataRow("Identificador", denuncia.usuarioIdentificador),
                 ],
               ),
             ),
@@ -545,34 +536,7 @@ class ListaDenunciasScreen extends StatefulWidget {
 
 class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
   Future<List<Denuncia>> _cargarYActualizarDenuncias() async {
-    final dbHelper = DatabaseHelper();
     try {
-      List<Denuncia> denunciasPendientes =
-          await dbHelper.getDenunciasPendientes();
-
-      // Si encontramos denuncias pendientes, intentamos subirlas una por una.
-      if (denunciasPendientes.isNotEmpty) {
-        print(
-          '🔄 Intentando subir ${denunciasPendientes.length} denuncias pendientes...',
-        );
-        for (var denunciaPendiente in denunciasPendientes) {
-          // Llamamos a la API para subir la denuncia.
-          bool seSubio = await ApiService.subirDenuncia(denunciaPendiente);
-
-          //  Si se subió con éxito, la API le asigna la clave.
-          //  Ahora actualizamos el registro local con la nueva clave.
-          if (seSubio) {
-            print(
-              '✅ Denuncia pendiente subida. Actualizando registro local ID: ${denunciaPendiente.id}',
-            );
-            await dbHelper.updateDenuncia(denunciaPendiente);
-          } else {
-            print(
-              '⚠️ No se pudo subir la denuncia pendiente con ID local: ${denunciaPendiente.id}',
-            );
-          }
-        }
-      }
       String id_unico = await obtenerIdentificadorUnicoDispositivo();
 
       List<DenunciaResumen> resumenesDesdeApi =
@@ -593,12 +557,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
         print("ℹ️ No se recibieron actualizaciones de la API.");
       }
 
-      //  obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
+      // 4. Finalmente, obtenemos TODAS las denuncias de la base de datos local (ya actualizadas)
       // y las retornamos para que el FutureBuilder las muestre.
       print("📚 Cargando denuncias desde la base de datos local para mostrar.");
       return DatabaseHelper().getAllDenuncias();
     } catch (e) {
       print("❌ Ocurrió un error en el proceso de carga y actualización: $e");
+      // Si algo falla, intentamos cargar los datos locales de todas formas
+      // o puedes manejar el error de otra manera.
       return DatabaseHelper().getAllDenuncias();
     }
   }
@@ -679,10 +645,14 @@ class _ListaDenunciasScreenState extends State<ListaDenunciasScreen> {
   }
 
   String _formatearFechaCorta(String fechaCompleta) {
+    // Usamos un bloque try-catch por si alguna vez la fecha viene en un formato inesperado.
     try {
+      // 1. Convierte el texto en un objeto DateTime.
       final DateTime fechaObjeto = DateTime.parse(fechaCompleta);
+      // 2. Formatea ese objeto para mostrar solo año, mes y día.
       return DateFormat('yyyy-MM-dd').format(fechaObjeto);
     } catch (e) {
+      // Si hay un error, intentamos devolver la primera parte del texto antes del espacio.
       return fechaCompleta.split(' ')[0];
     }
   }
@@ -860,8 +830,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset('assets/logoheroica.png'),
             ), // Espaciado inicial
             const Text(
-              "¡Denúncialo! Sistema Anticorrupción Juárez",
-              textAlign: TextAlign.center,
+              "Denuncia Ciudadana",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -1136,8 +1105,8 @@ class FormDenunciaState extends State<FormDenuncia> {
   final _formkey = GlobalKey<FormState>();
   String dropdownValue = 'Select';
   String civilStatusValue = 'Select';
-  String? dependenciaStatusValue;
-  String? echodropdownValue;
+  String dependenciaStatusValue = '117';
+  String echodropdownValue = 'Select';
   String fechaSeleccionada = '';
   bool anonimoValue = false;
   bool visiblefecha = false;
@@ -1670,22 +1639,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorNombreController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: 'Nombre del servidor'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Nombre del servidor',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty || value.length <= 2) {
@@ -1697,22 +1653,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorCargoController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: 'Cargo del servidor'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Cargo del servidor',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty || value.length <= 2) {
@@ -1727,19 +1670,7 @@ class FormDenunciaState extends State<FormDenuncia> {
             dropdownColor: Colors.white,
             style: TextStyle(color: Colors.black),
             value: dependenciaStatusValue,
-            // hint: const Text('Selecciona la dependencia'),
-            hint: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.black54, fontSize: 16),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: '* ',
-                    style: TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                  TextSpan(text: 'Selecciona la dependencia'),
-                ],
-              ),
-            ),
+            hint: const Text('Selecciona la dependencia'),
             isExpanded: true,
             onChanged: (String? newValue) {
               setState(() {
@@ -1992,24 +1923,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorIdentificacionDetalleController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(
-                      text: 'Otros datos para la identificación del servidor',
-                    ),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Otros datos para la identificación',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty || value.length <= 2) {
@@ -2028,19 +1944,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                   dropdownColor: Colors.white,
                   style: TextStyle(color: Colors.black),
                   value: echodropdownValue,
-                  hint: RichText(
-                    text: const TextSpan(
-                      style: TextStyle(color: Colors.black54, fontSize: 16),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: '* ',
-                          style: TextStyle(color: Colors.red, fontSize: 16),
-                        ),
-                        TextSpan(text: 'Lugar del hecho'),
-                      ],
-                    ),
-                  ),
-
+                  hint: const Text('Lugar del hecho'),
                   isExpanded: true,
                   onChanged: (String? newValue) {
                     setState(() {
@@ -2085,25 +1989,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                   controller: _servidorDistritoController,
                   //poner el teclado en numerico
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    // <-- Solo quita 'const' de aquí
-                    label: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          // Estilo por defecto para el texto del label
-                          fontSize: 16, // ajusta el tamaño si es necesario
-                          color: Colors.black54, // color por defecto del label
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' * ',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          TextSpan(text: 'Distrito'),
-                        ],
-                      ),
-                    ),
-                    border: const OutlineInputBorder(),
+                  decoration: const InputDecoration(
+                    labelText: 'Distrito',
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if ((value == null || value.isEmpty)) {
@@ -2119,22 +2007,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorDireccionController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: 'Dirección del hecho'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Dirección del hecho',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty || value.length <= 1) {
@@ -2147,22 +2022,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorDireccionCallesController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: ' Entre calles'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Entre calles',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if ((value == null || value.isEmpty) || value.length <= 1) {
@@ -2175,22 +2037,9 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorColoniaController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: 'Colonia'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Colonia',
+              border: OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty || value.length <= 1) {
@@ -2238,7 +2087,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                 });
               }
             },
-            child: Text('* Selecciona la fecha de ocurrencia'),
+            child: Text('SELECCIONAR FECHA DE OCURRENCIA'),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
               shape: RoundedRectangleBorder(
@@ -2303,24 +2152,10 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           TextFormField(
             controller: _servidorMotivoController,
-            decoration: InputDecoration(
-              // <-- Solo quita 'const' de aquí
-              label: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    // Estilo por defecto para el texto del label
-                    fontSize: 16, // ajusta el tamaño si es necesario
-                    color: Colors.black54, // color por defecto del label
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
-                    TextSpan(text: 'Señale el motivo y narre los hechos'),
-                  ],
-                ),
-              ),
-              border: const OutlineInputBorder(),
+            decoration: const InputDecoration(
+              labelText: 'Señale el motivo y narre los hechos',
+              border: OutlineInputBorder(),
             ),
-
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Ingrese el motivo y narre los hechos';
@@ -2331,19 +2166,11 @@ class FormDenunciaState extends State<FormDenuncia> {
           const SizedBox(height: 32),
 
           CheckboxListTile(
-            title: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.black, fontSize: 16),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: ' * ',
-                    style: TextStyle(color: Colors.red),
-                    // El estilo solo para el asterisco
-                  ),
-                  TextSpan(text: 'Términos y condiciones'),
-                ],
-              ),
+            title: Text(
+              'Términos y condiciones',
+              style: TextStyle(color: Colors.black),
             ),
+
             value: TerminosyCondicionesValue,
             tileColor: Colors.white,
             activeColor: const Color.fromARGB(255, 124, 36, 57),
@@ -2363,8 +2190,11 @@ class FormDenunciaState extends State<FormDenuncia> {
                 colorterminos = Colors.black;
               });
             },
-            controlAffinity: ListTileControlAffinity.leading,
+            controlAffinity:
+                ListTileControlAffinity
+                    .leading, // Coloca la casilla a la izquierda
           ),
+          // mensaje de aceptar los terminos
           if (!TerminosyCondicionesValue && intentar_enviar)
             Text(
               'Debe aceptar términos y condiciones',
@@ -2515,12 +2345,12 @@ class FormDenunciaState extends State<FormDenuncia> {
 
                       final denuncia = _crearDenuncia()..id = idDenuncia;
 
-                      // LLAMA A LA FUNCIÓN Y ESPERA EL RESULTADO
+                      // 3. LLAMA A LA FUNCIÓN Y ESPERA EL RESULTADO
                       bool seSubioCorrectamente =
                           await ApiService.subirDenuncia(denuncia);
 
-                      // MUESTRA UN MENSAJE AL USUARIO BASADO EN EL RESULTADO
-                      if (seSubioCorrectamente) {
+                      // 4. MUESTRA UN MENSAJE AL USUARIO BASADO EN EL RESULTADO
+                      if (!seSubioCorrectamente) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('✅ ¡Denuncia guardada con éxito!'),
@@ -2543,14 +2373,12 @@ class FormDenunciaState extends State<FormDenuncia> {
                           );
                           setState(() {
                             _isCargando = false;
-
                             intentar_enviar_archivos = false;
                           });
                           return;
                         }
 
                         setState(() {
-                          intentar_enviar_archivos = false;
                           _isCargando = true;
                           cargandoText = 'Guardando evidencias...';
                         });
@@ -2580,11 +2408,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                               denuncia.clave ?? '0',
                             );
 
-                        setState(() {
-                          intentar_enviar_archivos = false;
-                          _isCargando = false;
-                        });
                         return;
+
+                        //eliminar denuncia
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -2649,7 +2475,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                   horizontal: 32,
                   vertical: 16,
                 ),
+                //color de texto
                 foregroundColor: Colors.white,
+                //textStyle: const TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
           ),
