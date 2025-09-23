@@ -179,7 +179,7 @@ class guardadoExitoso extends StatelessWidget {
                     denuncia.servidorDireccion,
                   ),
                   _buildDataRow(
-                    "Entre calles",
+                    "Entre Calles",
                     denuncia.servidorDireccionCalles,
                   ),
                   _buildDataRow("Colonia del hecho", denuncia.servidorColonia),
@@ -1312,7 +1312,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   Widget _buildStep() {
     // Contenido principal según el paso actual
     Widget stepContent;
-
     if (_currentStep == 0) {
       stepContent = Column(
         children: [
@@ -1341,7 +1340,7 @@ class FormDenunciaState extends State<FormDenuncia> {
           const SizedBox(height: 20),
           SwitchListTile(
             title: const Text(
-              '¿Denunciar de forma anónima?',
+              '¿Denunciar de forma anonima?',
               style: TextStyle(color: Colors.black, fontSize: 14),
             ),
             activeTrackColor: const Color.fromARGB(255, 124, 36, 57),
@@ -2439,7 +2438,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('❌ ¡ERROR! La edad es inválida.'),
+                          content: Text(
+                            '❌ ¡ERROR! La edad es inválida (debe ser menor a 150)',
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );

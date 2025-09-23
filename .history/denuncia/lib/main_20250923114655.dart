@@ -179,7 +179,7 @@ class guardadoExitoso extends StatelessWidget {
                     denuncia.servidorDireccion,
                   ),
                   _buildDataRow(
-                    "Entre calles",
+                    "Entre Calles",
                     denuncia.servidorDireccionCalles,
                   ),
                   _buildDataRow("Colonia del hecho", denuncia.servidorColonia),
@@ -1088,20 +1088,20 @@ class _FundamentosLegalesScreenState extends State<FundamentosLegalesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Ley General de Responsabilidades Administrativas",
-                textAlign: TextAlign.justify,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 124, 36, 57),
                 ),
               ),
-              Text(
-                "\n"
-                "Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de "
-                "faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las autoridades investigadoras, lo anterior sin menoscabo de la plataforma "
+              const SizedBox(height: 8),
+              const Text(
+                " Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de"
+                "Faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las Autoridades investigadoras, lo anterior sin menoscabo de la plataforma"
                 "digital que determine, para tal efecto, el Sistema Nacional Anticorrupción.",
+                style: TextStyle(fontSize: 16, height: 1.5),
                 textAlign: TextAlign.justify,
               ),
 
@@ -1268,8 +1268,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                 ),
                 Text(
                   "\n"
-                  "Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de "
-                  "faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las autoridades investigadoras, lo anterior sin menoscabo de la plataforma "
+                  " Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de"
+                  "Faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las Autoridades investigadoras, lo anterior sin menoscabo de la plataforma"
                   "digital que determine, para tal efecto, el Sistema Nacional Anticorrupción.",
                   textAlign: TextAlign.justify,
                 ),
@@ -1312,7 +1312,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   Widget _buildStep() {
     // Contenido principal según el paso actual
     Widget stepContent;
-
     if (_currentStep == 0) {
       stepContent = Column(
         children: [
@@ -1341,7 +1340,7 @@ class FormDenunciaState extends State<FormDenuncia> {
           const SizedBox(height: 20),
           SwitchListTile(
             title: const Text(
-              '¿Denunciar de forma anónima?',
+              '¿Denunciar de forma anonima?',
               style: TextStyle(color: Colors.black, fontSize: 14),
             ),
             activeTrackColor: const Color.fromARGB(255, 124, 36, 57),
@@ -1604,8 +1603,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                 TextFormField(
                   controller: _numeroIdentificacionController,
                   decoration: const InputDecoration(
-                    labelText:
-                        'Numero de Identificación oficial (INE, Pasaporte, etc)',
+                    labelText: 'Numero de Identificación',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -1752,11 +1750,11 @@ class FormDenunciaState extends State<FormDenuncia> {
             items: const [
               DropdownMenuItem(
                 value: '117',
-                child: Text('SELECCIONA LA DEPENDENCIA'),
+                child: Text(' SELECCIONA LA DEPENDENCIA'),
               ),
               DropdownMenuItem(
-                value: 'Administración de la ciudad',
-                child: Text('Administración de la ciudad'),
+                value: 'Administracion de la ciudad',
+                child: Text('Administracion de la ciudad'),
               ),
               DropdownMenuItem(
                 value: 'Asociaciones religiosas',
@@ -1767,16 +1765,20 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Comunicación social'),
               ),
               DropdownMenuItem(
-                value: 'Contraloría municipal',
-                child: Text('Contraloría municipal'),
+                value: 'Contraloria municipal',
+                child: Text('Contraloria municipal'),
               ),
               DropdownMenuItem(
-                value: 'Control de tráfico',
-                child: Text('Control de tráfico'),
+                value: 'Contraluria municipal',
+                child: Text('Contraluria municipal'),
               ),
               DropdownMenuItem(
-                value: 'Coordinación de atención ciudadana',
-                child: Text('Coordinación de atención ciudadana'),
+                value: 'Control de trafico',
+                child: Text('Control de trafico'),
+              ),
+              DropdownMenuItem(
+                value: 'Coordinación de atencion ciudadana',
+                child: Text('Coordinación de atencion ciudadana'),
               ),
               DropdownMenuItem(
                 value: 'Coordinación de contacto social',
@@ -1787,9 +1789,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Coordinación de redes sociales'),
               ),
               DropdownMenuItem(
-                value: 'Coordinadora de atención ciudadana del sur oriente',
+                value: 'Coordinadora de atencion ciudadana del sur oriente',
                 child: Text(
-                  'Coordinadora de atención ciudadana del sur oriente',
+                  'Coordinadora de atencion ciudadana del sur oriente',
                 ),
               ),
               DropdownMenuItem(
@@ -1809,8 +1811,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Dirección de desarrollo rural'),
               ),
               DropdownMenuItem(
-                value: 'Dirección de ecología',
-                child: Text('Dirección de ecología'),
+                value: 'Dirección de ecologia',
+                child: Text('Dirección de ecologia'),
               ),
               DropdownMenuItem(
                 value: 'Dirección de educación',
@@ -1821,8 +1823,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Dirección de gobierno'),
               ),
               DropdownMenuItem(
-                value: 'Dirección de industrialización agropecuaria',
-                child: Text('Dirección de industrialización agropecuaria'),
+                value: 'Dirección de industrializacion agropecuaria',
+                child: Text('Dirección de industrializacion agropecuaria'),
               ),
               DropdownMenuItem(
                 value: 'Dirección de ingresos',
@@ -1841,8 +1843,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Dirección de recursos humanos'),
               ),
               DropdownMenuItem(
-                value: 'Dirección de regularización comercial',
-                child: Text('Dirección de regularización comercial'),
+                value: 'Dirección de regularizacion comercial',
+                child: Text('Dirección de regularizacion comercial'),
               ),
               DropdownMenuItem(
                 value: 'Dirección de responsabilidades',
@@ -1873,111 +1875,111 @@ class FormDenunciaState extends State<FormDenuncia> {
                 child: Text('Dirección general de desarrollo urbano'),
               ),
               DropdownMenuItem(
-                value: 'Dirección general de informática y comunicaciones',
+                value: 'Dirección general de informatica y comunicaciones',
                 child: Text(
-                  'Dirección general de informática y comunicaciones',
+                  'Dirección general de informatica y comunicaciones',
                 ),
               ),
               DropdownMenuItem(
-                value: 'Dirección general de obras públicas',
-                child: Text('Dirección general de obras públicas'),
+                value: 'Dirección general de obras publicas',
+                child: Text('Dirección general de obras publicas'),
               ),
               DropdownMenuItem(
                 value: 'Dirección general de protección civil',
                 child: Text('Dirección general de protección civil'),
               ),
               DropdownMenuItem(
-                value: 'Dirección general de servicios públicos',
-                child: Text('Dirección general de servicios públicos'),
+                value: 'Dirección general de servicios publicos',
+                child: Text('Dirección general de servicios publicos'),
               ),
               DropdownMenuItem(
-                value: 'Dirección general de tránsito municipal',
-                child: Text('Dirección general de tránsito municipal'),
+                value: 'Dirección general de transito municipal',
+                child: Text('Dirección general de transito municipal'),
               ),
               DropdownMenuItem(
-                value: 'Dirección jurídica',
-                child: Text('Dirección jurídica'),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Instituto municipal de investigación y planeación (IMIP)',
-                child: Text(
-                  'Instituto municipal de investigación y planeación (IMIP)',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Instituto municipal de las mujeres (IMM)',
-                child: Text('Instituto municipal de las mujeres (IMM)'),
+                value: 'Dirección juridica',
+                child: Text('Dirección juridica'),
               ),
               DropdownMenuItem(
                 value:
-                    'Instituto municipal del deporte y cultura física de Juárez',
+                    'Instituto municipal de investigacion y planacion (imip)',
                 child: Text(
-                  'Instituto municipal del deporte y cultura física de Juárez',
+                  'Instituto municipal de investigacion y planacion (imip)',
                 ),
               ),
               DropdownMenuItem(
-                value: 'Instituto municipal de la juventud de Juárez (IMJJ)',
-                child: Text(
-                  'Instituto municipal de la juventud de Juárez (IMJJ)',
-                ),
+                value: 'Instituto municipal de las mujeres (imm)',
+                child: Text('Instituto municipal de las mujeres (imm)'),
               ),
               DropdownMenuItem(
                 value:
-                    'Instituto para la cultura del municipio de Juárez (ICMJ)',
+                    'Instituto municipal del deporte y cultura fisica de juarez',
                 child: Text(
-                  'Instituto para la cultura del municipio de Juárez (ICMJ)',
+                  'Instituto municipal del deporte y cultura fisica de juarez',
                 ),
               ),
               DropdownMenuItem(
-                value: 'Oficialía mayor',
-                child: Text('Oficialía mayor'),
-              ),
-              DropdownMenuItem(
-                value:
-                    'Operadora municipal de estacionamientos de Juárez (OMEJ)',
+                value: 'Instituto municipal del juventud de juarez (imjj)',
                 child: Text(
-                  'Operadora municipal de estacionamientos de Juárez (OMEJ)',
-                ),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaría de seguridad pública',
-                child: Text('Secretaría de seguridad pública'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaría del ayuntamiento',
-                child: Text('Secretaría del ayuntamiento'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaría particular',
-                child: Text('Secretaría particular'),
-              ),
-              DropdownMenuItem(
-                value: 'Secretaría técnica (070)',
-                child: Text('Secretaría técnica (070)'),
-              ),
-              DropdownMenuItem(
-                value: 'Sindicato único de trabajadores municipales',
-                child: Text('Sindicato único de trabajadores municipales'),
-              ),
-              DropdownMenuItem(
-                value: 'Sistema de urbanización municipal adicional (SUMA)',
-                child: Text(
-                  'Sistema de urbanización municipal adicional (SUMA)',
+                  'Instituto municipal del juventud de juarez (imjj)',
                 ),
               ),
               DropdownMenuItem(
                 value:
-                    'Sistema para el desarrollo integral de la familia (DIF)',
+                    'Instituto para la cultura del municipio de juarez (icmj)',
                 child: Text(
-                  'Sistema para el desarrollo integral de la familia (DIF)',
+                  'Instituto para la cultura del municipio de juarez (icmj)',
                 ),
               ),
               DropdownMenuItem(
-                value: 'Tesorería municipal',
-                child: Text('Tesorería municipal'),
+                value: 'Oficialia mayor',
+                child: Text('Oficialia mayor'),
+              ),
+              DropdownMenuItem(
+                value:
+                    'Operadora municipal de estacionamientos de juarez (omej)',
+                child: Text(
+                  'Operadora municipal de estacionamientos de juarez (omej)',
+                ),
               ),
               DropdownMenuItem(value: 'Otros', child: Text('Otros')),
+              DropdownMenuItem(
+                value: 'Secretaria de seguridad publica',
+                child: Text('Secretaria de seguridad publica'),
+              ),
+              DropdownMenuItem(
+                value: 'Secretaria del ayuntamiento',
+                child: Text('Secretaria del ayuntamiento'),
+              ),
+              DropdownMenuItem(
+                value: 'Secretaria particular',
+                child: Text('Secretaria particular'),
+              ),
+              DropdownMenuItem(
+                value: 'Secretaria tecnica (070)',
+                child: Text('Secretaria tecnica (070)'),
+              ),
+              DropdownMenuItem(
+                value: 'Sindicato unico de trabajadores municipales',
+                child: Text('Sindicato unico de trabajadores municipales'),
+              ),
+              DropdownMenuItem(
+                value: 'Sistema de urbanizacion municipal adicional (suma)',
+                child: Text(
+                  'Sistema de urbanizacion municipal adicional (suma)',
+                ),
+              ),
+              DropdownMenuItem(
+                value:
+                    'Sistema para el desarrollo integral de la familia (dif)',
+                child: Text(
+                  'Sistema para el desarrollo integral de la familia (dif)',
+                ),
+              ),
+              DropdownMenuItem(
+                value: 'Tesoreria municipal',
+                child: Text('Tesoreria municipal'),
+              ),
             ],
             validator: (value) {
               if (value == null || value == '117' || value.isEmpty) {
@@ -2049,7 +2051,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                   items: const [
                     DropdownMenuItem(
                       value: 'Publica',
-                      child: Text('En vía pública'),
+                      child: Text('En via pública'),
                     ),
                     DropdownMenuItem(
                       value: 'Dependencia',
@@ -2065,10 +2067,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                     ),
                     DropdownMenuItem(
                       value: 'Select',
-                      child: Text('Lugar del hecho'),
+                      child: Text('Lugar del echo'),
                     ),
                   ],
-
                   validator: (value) {
                     if (value == null || value == 'Select' || value.isEmpty) {
                       return 'Seleccione el lugar del hecho';
@@ -2295,7 +2296,7 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           if (_urlsEvidencias.isEmpty && intentar_enviar_archivos)
             Text(
-              'Debe subir al menos un archivo',
+              'Debe subir almenos un archivo',
               style: TextStyle(color: const Color.fromARGB(255, 212, 47, 47)),
             ),
           const SizedBox(height: 16),
@@ -2303,9 +2304,14 @@ class FormDenunciaState extends State<FormDenuncia> {
           TextFormField(
             controller: _servidorMotivoController,
             decoration: InputDecoration(
+              // <-- Solo quita 'const' de aquí
               label: RichText(
                 text: const TextSpan(
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: TextStyle(
+                    // Estilo por defecto para el texto del label
+                    fontSize: 16, // ajusta el tamaño si es necesario
+                    color: Colors.black54, // color por defecto del label
+                  ),
                   children: <TextSpan>[
                     TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
                     TextSpan(text: 'Señale el motivo y narre los hechos'),
@@ -2329,7 +2335,11 @@ class FormDenunciaState extends State<FormDenuncia> {
               text: const TextSpan(
                 style: TextStyle(color: Colors.black, fontSize: 16),
                 children: <TextSpan>[
-                  TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
+                  TextSpan(
+                    text: ' * ',
+                    style: TextStyle(color: Colors.red),
+                    // El estilo solo para el asterisco
+                  ),
                   TextSpan(text: 'Términos y condiciones'),
                 ],
               ),
@@ -2365,7 +2375,6 @@ class FormDenunciaState extends State<FormDenuncia> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: ElevatedButton(
               onPressed: () async {
-                // VALIDAMOS EL FORMULARIO CONTESTADO
                 try {
                   await Future.delayed(Duration.zero);
                   setState(() {
@@ -2385,7 +2394,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                     colorterminos = Colors.black;
                     colorfechaBorde = Colors.transparent;
                   });
-
                   // Validar campos requeridos
                   bool hasErrors = false;
 
@@ -2411,41 +2419,13 @@ class FormDenunciaState extends State<FormDenuncia> {
                     });
                   }
 
-                  // Teléfono: validar solo si no está vacío
-                  if (_telefonoController.text.isNotEmpty) {
-                    if (_telefonoController.text.length >= 15) {
-                      setState(() {
-                        cargandoText = '❌ Teléfono inválido (máx. 14 dígitos)';
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            '❌ ¡ERROR! El teléfono es inválido (máx. 14 dígitos)',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      hasErrors = true;
-                      return;
-                    }
-                  }
-
-                  // Edad: validar solo si no está vacía
-                  if (_edadController.text.isNotEmpty) {
-                    final edad = int.tryParse(_edadController.text) ?? 0;
-                    if (edad >= 150) {
-                      setState(() {
-                        cargandoText = 'Edad inválida (debe ser menor a 150)';
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('❌ ¡ERROR! La edad es inválida.'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      hasErrors = true;
-                      return;
-                    }
+                  // telefono menor a 15 digitos
+                  if (_telefonoController.text.length < 15) {
+                    setState(() {
+                      cargandoText = 'Teléfono inválido';
+                      Duration(seconds: 2);
+                    });
+                    hasErrors = true;
                   }
 
                   setState(() {

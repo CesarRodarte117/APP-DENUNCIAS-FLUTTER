@@ -179,7 +179,7 @@ class guardadoExitoso extends StatelessWidget {
                     denuncia.servidorDireccion,
                   ),
                   _buildDataRow(
-                    "Entre calles",
+                    "Entre Calles",
                     denuncia.servidorDireccionCalles,
                   ),
                   _buildDataRow("Colonia del hecho", denuncia.servidorColonia),
@@ -1264,7 +1264,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                 Text(
                   "Ley General de Responsabilidades Administrativas",
                   textAlign: TextAlign.justify,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "\n"

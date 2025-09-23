@@ -179,7 +179,7 @@ class guardadoExitoso extends StatelessWidget {
                     denuncia.servidorDireccion,
                   ),
                   _buildDataRow(
-                    "Entre calles",
+                    "Entre Calles",
                     denuncia.servidorDireccionCalles,
                   ),
                   _buildDataRow("Colonia del hecho", denuncia.servidorColonia),
@@ -1088,20 +1088,20 @@ class _FundamentosLegalesScreenState extends State<FundamentosLegalesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Ley General de Responsabilidades Administrativas",
-                textAlign: TextAlign.justify,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color.fromARGB(255, 124, 36, 57),
                 ),
               ),
-              Text(
-                "\n"
-                "Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de "
-                "faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las autoridades investigadoras, lo anterior sin menoscabo de la plataforma "
+              const SizedBox(height: 8),
+              const Text(
+                " Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de"
+                "Faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las Autoridades investigadoras, lo anterior sin menoscabo de la plataforma"
                 "digital que determine, para tal efecto, el Sistema Nacional Anticorrupción.",
+                style: TextStyle(fontSize: 16, height: 1.5),
                 textAlign: TextAlign.justify,
               ),
 
@@ -1268,8 +1268,8 @@ class FormDenunciaState extends State<FormDenuncia> {
                 ),
                 Text(
                   "\n"
-                  "Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de "
-                  "faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las autoridades investigadoras, lo anterior sin menoscabo de la plataforma "
+                  " Artículo 93. La denuncia deberá contener los datos o indicios que permitan advertir la presunta responsabilidad administrativa por la comisión de"
+                  "Faltas administrativas, y podrán ser presentadas de manera electrónica a través de los mecanismos que para tal efecto establezcan las Autoridades investigadoras, lo anterior sin menoscabo de la plataforma"
                   "digital que determine, para tal efecto, el Sistema Nacional Anticorrupción.",
                   textAlign: TextAlign.justify,
                 ),
@@ -1312,7 +1312,6 @@ class FormDenunciaState extends State<FormDenuncia> {
   Widget _buildStep() {
     // Contenido principal según el paso actual
     Widget stepContent;
-
     if (_currentStep == 0) {
       stepContent = Column(
         children: [
@@ -1341,7 +1340,7 @@ class FormDenunciaState extends State<FormDenuncia> {
           const SizedBox(height: 20),
           SwitchListTile(
             title: const Text(
-              '¿Denunciar de forma anónima?',
+              '¿Denunciar de forma anonima?',
               style: TextStyle(color: Colors.black, fontSize: 14),
             ),
             activeTrackColor: const Color.fromARGB(255, 124, 36, 57),
@@ -2049,7 +2048,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                   items: const [
                     DropdownMenuItem(
                       value: 'Publica',
-                      child: Text('En vía pública'),
+                      child: Text('En via pública'),
                     ),
                     DropdownMenuItem(
                       value: 'Dependencia',
@@ -2065,10 +2064,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                     ),
                     DropdownMenuItem(
                       value: 'Select',
-                      child: Text('Lugar del hecho'),
+                      child: Text('Lugar del echo'),
                     ),
                   ],
-
                   validator: (value) {
                     if (value == null || value == 'Select' || value.isEmpty) {
                       return 'Seleccione el lugar del hecho';
@@ -2295,7 +2293,7 @@ class FormDenunciaState extends State<FormDenuncia> {
 
           if (_urlsEvidencias.isEmpty && intentar_enviar_archivos)
             Text(
-              'Debe subir al menos un archivo',
+              'Debe subir almenos un archivo',
               style: TextStyle(color: const Color.fromARGB(255, 212, 47, 47)),
             ),
           const SizedBox(height: 16),
@@ -2303,9 +2301,14 @@ class FormDenunciaState extends State<FormDenuncia> {
           TextFormField(
             controller: _servidorMotivoController,
             decoration: InputDecoration(
+              // <-- Solo quita 'const' de aquí
               label: RichText(
                 text: const TextSpan(
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: TextStyle(
+                    // Estilo por defecto para el texto del label
+                    fontSize: 16, // ajusta el tamaño si es necesario
+                    color: Colors.black54, // color por defecto del label
+                  ),
                   children: <TextSpan>[
                     TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
                     TextSpan(text: 'Señale el motivo y narre los hechos'),
@@ -2329,7 +2332,11 @@ class FormDenunciaState extends State<FormDenuncia> {
               text: const TextSpan(
                 style: TextStyle(color: Colors.black, fontSize: 16),
                 children: <TextSpan>[
-                  TextSpan(text: ' * ', style: TextStyle(color: Colors.red)),
+                  TextSpan(
+                    text: ' * ',
+                    style: TextStyle(color: Colors.red),
+                    // El estilo solo para el asterisco
+                  ),
                   TextSpan(text: 'Términos y condiciones'),
                 ],
               ),
@@ -2365,7 +2372,6 @@ class FormDenunciaState extends State<FormDenuncia> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: ElevatedButton(
               onPressed: () async {
-                // VALIDAMOS EL FORMULARIO CONTESTADO
                 try {
                   await Future.delayed(Duration.zero);
                   setState(() {
@@ -2385,7 +2391,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                     colorterminos = Colors.black;
                     colorfechaBorde = Colors.transparent;
                   });
-
                   // Validar campos requeridos
                   bool hasErrors = false;
 
@@ -2439,7 +2444,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('❌ ¡ERROR! La edad es inválida.'),
+                          content: Text(
+                            '❌ ¡ERROR! La edad es inválida (debe ser menor a 150)',
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       );
