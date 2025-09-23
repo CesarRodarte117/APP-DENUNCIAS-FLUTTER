@@ -1,4 +1,4 @@
-package com.example.denuncia
+package com.aplicacionesjuarez.denuncia
 
 import io.flutter.embedding.android.FlutterActivity
 
