@@ -2367,6 +2367,7 @@ class FormDenunciaState extends State<FormDenuncia> {
               onPressed: () async {
                 // VALIDAMOS EL FORMULARIO CONTESTADO
                 try {
+                  await Future.delayed(Duration.zero);
                   setState(() {
                     intentar_enviar = true;
                     if (_urlsEvidencias.isEmpty) {
@@ -2446,12 +2447,10 @@ class FormDenunciaState extends State<FormDenuncia> {
                       return;
                     }
                   }
-                  setState(() {
-                    _isCargando = true;
-                    cargandoText = 'Guardando denuncia...';
-                  });
                   await Future.delayed(Duration.zero);
                   setState(() {
+                    cargandoText = 'Guardando denuncia...';
+
                     // comprobar datos si estan vacios del usuario se registren como anonimos
                     if (anonimoValue) {
                       _nombreController.text = 'Anónimo';
@@ -2524,6 +2523,7 @@ class FormDenunciaState extends State<FormDenuncia> {
                               : _numeroIdentificacionController.text;
                     }
                   });
+                  await Future.delayed(Duration.zero);
                   String id_unico =
                       await obtenerIdentificadorUnicoDispositivo();
 
@@ -2534,29 +2534,40 @@ class FormDenunciaState extends State<FormDenuncia> {
                   if (_formkey.currentState!.validate() && !hasErrors) {
                     setState(() {
                       _isCargando = true;
-                      cargandoText = 'Registrando denuncia...';
+                      cargandoText = 'Subiendo archivos...';
                     });
                     await Future.delayed(Duration.zero);
                     try {
                       final idDenuncia = await _guardarDenuncia();
+
+                      setState(() {
+                        _isCargando = true;
+                        cargandoText = 'Denuncia guardada con éxito';
+                      });
+                      await Future.delayed(const Duration(milliseconds: 500));
 
                       final denuncia = _crearDenuncia()..id = idDenuncia;
 
                       // LLAMA A LA FUNCIÓN Y ESPERA EL RESULTADO
                       bool seSubioCorrectamente =
                           await ApiService.subirDenuncia(denuncia);
-                      setState(() {
-                        _isCargando = true;
-                        cargandoText = 'Guardando archivos...';
-                      });
-                      await Future.delayed(Duration.zero);
+
                       // MUESTRA UN MENSAJE AL USUARIO BASADO EN EL RESULTADO
                       if (seSubioCorrectamente) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('✅ ¡Denuncia guardada con éxito!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
                         await DatabaseHelper().updateDenuncia(denuncia);
 
                         final archivosSubidos = await _uploaderKey.currentState!
                             .subirArchivos(denuncia.clave ?? id_unico);
-
+                        setState(() {
+                          _isCargando = true;
+                          cargandoText = 'Ya casi terminamos...';
+                        });
                         if (!archivosSubidos) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -2574,9 +2585,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                         setState(() {
                           intentar_enviar_archivos = false;
                           _isCargando = true;
-                          cargandoText = 'Ya casi terminamos...';
+                          cargandoText = 'Guardando evidencias...';
                         });
-                        await Future.delayed(Duration.zero);
+
                         // guardar id de denuncia en el uploader
                         await _uploaderKey.currentState!
                             .guardarEvidenciasLocales(
@@ -2609,15 +2620,15 @@ class FormDenunciaState extends State<FormDenuncia> {
                         return;
                       }
 
-                      await _mostrarFundamentos(context);
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('✅ ¡Denuncia guardada con éxito!'),
-                          backgroundColor: Colors.green,
                           duration: Duration(seconds: 2),
                         ),
                       );
+
+                      await _mostrarFundamentos(context);
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

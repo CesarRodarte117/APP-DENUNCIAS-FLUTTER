@@ -2609,15 +2609,15 @@ class FormDenunciaState extends State<FormDenuncia> {
                         return;
                       }
 
-                      await _mostrarFundamentos(context);
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('✅ ¡Denuncia guardada con éxito!'),
-                          backgroundColor: Colors.green,
                           duration: Duration(seconds: 2),
                         ),
                       );
+
+                      await _mostrarFundamentos(context);
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

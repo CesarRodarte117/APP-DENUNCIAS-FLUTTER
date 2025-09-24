@@ -2367,6 +2367,7 @@ class FormDenunciaState extends State<FormDenuncia> {
               onPressed: () async {
                 // VALIDAMOS EL FORMULARIO CONTESTADO
                 try {
+                  await Future.delayed(Duration.zero);
                   setState(() {
                     intentar_enviar = true;
                     if (_urlsEvidencias.isEmpty) {
@@ -2448,10 +2449,12 @@ class FormDenunciaState extends State<FormDenuncia> {
                   }
                   setState(() {
                     _isCargando = true;
-                    cargandoText = 'Guardando denuncia...';
+                    cargandoText = 'Registrando denuncia...';
                   });
                   await Future.delayed(Duration.zero);
                   setState(() {
+                    cargandoText = 'Guardando denuncia...';
+
                     // comprobar datos si estan vacios del usuario se registren como anonimos
                     if (anonimoValue) {
                       _nombreController.text = 'Anónimo';
@@ -2574,9 +2577,9 @@ class FormDenunciaState extends State<FormDenuncia> {
                         setState(() {
                           intentar_enviar_archivos = false;
                           _isCargando = true;
-                          cargandoText = 'Ya casi terminamos...';
+                          cargandoText = 'Guardando evidencias...';
                         });
-                        await Future.delayed(Duration.zero);
+
                         // guardar id de denuncia en el uploader
                         await _uploaderKey.currentState!
                             .guardarEvidenciasLocales(
@@ -2609,15 +2612,15 @@ class FormDenunciaState extends State<FormDenuncia> {
                         return;
                       }
 
-                      await _mostrarFundamentos(context);
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('✅ ¡Denuncia guardada con éxito!'),
-                          backgroundColor: Colors.green,
                           duration: Duration(seconds: 2),
                         ),
                       );
+
+                      await _mostrarFundamentos(context);
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

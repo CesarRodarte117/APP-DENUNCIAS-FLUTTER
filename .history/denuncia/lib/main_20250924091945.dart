@@ -2614,7 +2614,6 @@ class FormDenunciaState extends State<FormDenuncia> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('✅ ¡Denuncia guardada con éxito!'),
-                          backgroundColor: Colors.green,
                           duration: Duration(seconds: 2),
                         ),
                       );
